@@ -7,7 +7,6 @@ function CreateIPFS() {
     const [product, setProduct] = useState()
     const [description, setDescription] = useState()
     const [path ,setPath] = useState()
-    console.log(ipfs)
     const submitImage = async (e) => {
         e.preventDefault()
         const form = e.target;
