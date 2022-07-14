@@ -1,11 +1,11 @@
 import './App.css';
-import CreateIPFS from './components/CreateIPFS';
+import Landing from './components/Landing';
 
 function App() {
  
   return (
     <div className="App">
-      <CreateIPFS/>
+      <Landing/>
     </div>
   );
 }

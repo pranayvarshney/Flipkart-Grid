@@ -1,36 +1,39 @@
 import {
-    Box,
+    Box,   
     Stack,
     Heading,
     Text,
     Container,
-    Input,
     Button,
-    SimpleGrid,
-    FormControl,
-    FormLabel,
-    useBreakpointValue,
-    useColorModeValue,
+    SimpleGrid,  
+    useBreakpointValue,  
     Icon,
 } from '@chakra-ui/react';
 
 import { useNavigate } from "react-router-dom";
+import { useState } from 'react';
 
-export default function Landing() {
-    let history = useNavigate();
-    const handleSubmit = (e) => {
-        let email = document.getElementById('email')
-        email = email.value;
-        let pass = document.getElementById('password')
-        pass = pass.value;
-        console.log(email);
-        console.log(pass);
-
-        history("/create");
+export default function ClientLanding() {
+    const [address,setAddress] = useState()
+     let history = useNavigate();
+    const handleClick = () => {
+        if (window.ethereum) {
+            window.ethereum.request({ method: "eth_requestAccounts" }).then((res) => {
+                setAddress(res[0])
+                history("/home");
+            }).catch(error=>{
+                window.alert("🦊 Connect to Metamask using the button on the top right")
+            });
+            
+        }
+        else{
+            window.alert('🦊 You must install Metamask into your browser: https://metamask.io/download.html')
+        }
+        
 
     }
     return (
-        <Box position={'relative'} overflow={'hidden'}>
+        <Box position={'relative'} minH={'100vh'} overflow={'hidden'} >
             <Container
                 as={SimpleGrid}
                 maxW={'7xl'}
@@ -46,7 +49,7 @@ export default function Landing() {
                             as={'span'}
                             bgGradient="linear(to-r, blue.400,cyan.400)"
                             bgClip="text">
-                            Retail
+                            Client
                         </Text>{' '}
                         Login
                     </Heading>
@@ -64,7 +67,8 @@ export default function Landing() {
                             color={'gray.800'}
                             lineHeight={1.1}
                             fontSize={{ base: '2xl', sm: '3xl', md: '4xl' }}>
-                            Welcome
+                            Welcome {' '}
+                            {address}
                             <Text
                                 as={'span'}
                                 bgGradient="linear(to-r, red.400,pink.400)"
@@ -75,49 +79,25 @@ export default function Landing() {
                         <Text color={'gray.500'} fontSize={{ base: 'sm', sm: 'md' }}>
                             Contact NFTwarranties team if you don't have a login username and password
                         </Text>
-                    </Stack>
-
-                    <Stack
-                        spacing={4}
-                        w={'full'}
-                        maxW={'md'}
-                        bg={useColorModeValue('white', 'gray.700')}
-                        rounded={'xl'}
-                        boxShadow={'lg'}
-                        p={6}
-                        my={12}>
-                        <Heading lineHeight={1.1} fontSize={{ base: '2xl', md: '3xl' }}>
-                            Login
-                        </Heading>
-                        <FormControl id="email" isRequired>
-                            <FormLabel>Email address</FormLabel>
-                            <Input
-                                placeholder="your-email@example.com"
-                                _placeholder={{ color: 'gray.500' }}
-                                type="email"
-                            />
-                        </FormControl>
-                        <FormControl id="password" isRequired>
-                            <FormLabel>Password</FormLabel>
-                            <Input type="password" />
-                        </FormControl>
                         <Stack spacing={6}>
                             <Button
-                                bg={'blue.400'}
+                                maxWidth={'350px'}
+                                fontSize={'2xl'}
+                                bg={'orange.400'}
                                 color={'white'}
                                 _hover={{
-                                    bg: 'blue.500',
+                                    bg: 'orange.700',
                                 }}
-                                onClick={handleSubmit}
+                                onClick={handleClick}
                             >
-                                Submit
+                                Connect to Metamask
                             </Button>
                         </Stack>
                     </Stack>
-
-
                 </Stack>
+
             </Container>
+            
             <Blur
                 position={'absolute'}
                 top={20}
