@@ -53,18 +53,31 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
         require(serialNumToPurchasingHistory[serialNum][0].purchaseDate + serialNumToCurrentWarrantyPeriod[serialNum] >= block.timestamp );
         _;
     }
+    // modifier to check whether the owner is claiming the warranty or not
+    modifier isOwner(string memory serialNum){
+        require(serialNumToPurchasingHistory[serialNum][serialNumToPurchasingHistory[serialNum].length -1].ownerAdd == msg.sender);
+        _;
+    }
+    // modifier to check whether Flipkart is making the change
+    // Used address belongs to Yuvraj
+    modifier isFlipkart(){
+        require(msg.sender == 0x7521bF23C427Ca52016Fda4709932C56D23aa487);
+        _;
+    }
 
     // to check the validity of warranty
-    function checkValidity(string memory serialNum) public returns (bool){
+    function checkValidity(string memory serialNum) view external returns (bool){
         if(serialNumToPurchasingHistory[serialNum][0].purchaseDate + serialNumToCurrentWarrantyPeriod[serialNum] >= block.timestamp){ 
-        return true;
+            return true;
         }else{
-        return false;
+            return false;
         }
     }
 
     //Custom mint function
+    // to is coming from IPFS file generated during order and thus we are checking whther the adress given during order placement is same as the one with which it is claimed
     function safeMint(address to, string memory uri, string memory serialNum, uint warrantyPeriod, uint purchaseDate) public returns(uint){
+        require(to == msg.sender);
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
@@ -96,19 +109,19 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
     }
 
     //customer claims the warranty
-    function claimWarranty(string memory serialNum, string memory complaint) public isValid(serialNum) {
+    function claimWarranty(string memory serialNum, string memory complaint) public isValid(serialNum) isOwner(serialNum){
         serialNumToWarrantyClaims[serialNum].push(warrantyClaim(status.OPEN, uint32(block.timestamp), 0, complaint, ""));
     }
 
     //Enterprise closes the warranty claim
-    function closeWarrantyTicket(string memory serialNum, string memory redressal) public {
+    function closeWarrantyTicket(string memory serialNum, string memory redressal) public isFlipkart(){
         serialNumToWarrantyClaims[serialNum][serialNumToWarrantyClaims[serialNum].length - 1].warrantyStatus = status.CLOSE;
         serialNumToWarrantyClaims[serialNum][serialNumToWarrantyClaims[serialNum].length - 1].dateOfTicketClosing = uint32(block.timestamp);
         serialNumToWarrantyClaims[serialNum][serialNumToWarrantyClaims[serialNum].length - 1].redressal = redressal;
     }
 
     // transfer ownership 
-    function transferOwnership(address to, uint tokenId, string memory serialNum) public{
+    function transferOwnership(address to, uint tokenId, string memory serialNum) public isOwner(serialNum){
         _beforeTokenTransfer(msg.sender, to, tokenId);
         safeTransferFrom(msg.sender, to, tokenId);
         serialNumToPurchasingHistory[serialNum].push(purchasingHistory(to,uint32(block.timestamp)));
@@ -116,7 +129,7 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
     }
 
     //function to extend warranty
-    function extendWarranty(string memory serialNum, uint newWarrantyPeriod) public{
+    function extendWarranty(string memory serialNum, uint newWarrantyPeriod) public isFlipkart(){
         serialNumToCurrentWarrantyPeriod[serialNum] = newWarrantyPeriod;
     }
 
