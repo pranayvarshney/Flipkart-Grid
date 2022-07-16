@@ -50,18 +50,18 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
 
     // modifier to check if warranty can be claimed or not
     modifier isValid(string memory serialNum){
-        require(serialNumToPurchasingHistory[serialNum][0].purchaseDate + serialNumToCurrentWarrantyPeriod[serialNum] >= block.timestamp );
+        require(serialNumToPurchasingHistory[serialNum][0].purchaseDate + serialNumToCurrentWarrantyPeriod[serialNum] >= block.timestamp, "Your warranty has expired" );
         _;
     }
-    // modifier to check whether the owner is claiming the warranty or not
+    // modifier to check whether the latest owner is claiming the warranty or not
     modifier isOwner(string memory serialNum){
-        require(serialNumToPurchasingHistory[serialNum][serialNumToPurchasingHistory[serialNum].length -1].ownerAdd == msg.sender);
+        require(serialNumToPurchasingHistory[serialNum][serialNumToPurchasingHistory[serialNum].length -1].ownerAdd == msg.sender, "You are not the current owner");
         _;
     }
     // modifier to check whether Flipkart is making the change
     // Used address belongs to Yuvraj
     modifier isFlipkart(){
-        require(msg.sender == 0x7521bF23C427Ca52016Fda4709932C56D23aa487);
+        require(msg.sender == 0x7521bF23C427Ca52016Fda4709932C56D23aa487, "Only flipkart can make this change");
         _;
     }
 
@@ -77,7 +77,7 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
     //Custom mint function
     // to is coming from IPFS file generated during order and thus we are checking whther the adress given during order placement is same as the one with which it is claimed
     function safeMint(address to, string memory uri, string memory serialNum, uint warrantyPeriod, uint purchaseDate) public returns(uint){
-        require(to == msg.sender);
+        require(to == msg.sender, "You are not authorized to mint this NFT");
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
@@ -121,7 +121,8 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
     }
 
     // transfer ownership 
-    function transferOwnership(address to, uint tokenId, string memory serialNum) public isOwner(serialNum){
+    function transferOwnership(address to, uint tokenId, string memory serialNum, bool isSBT) public isOwner(serialNum){
+        require(isSBT, "Your token is a SoulBound token");
         _beforeTokenTransfer(msg.sender, to, tokenId);
         safeTransferFrom(msg.sender, to, tokenId);
         serialNumToPurchasingHistory[serialNum].push(purchasingHistory(to,uint32(block.timestamp)));
