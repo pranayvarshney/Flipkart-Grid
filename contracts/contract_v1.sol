@@ -21,9 +21,11 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
         uint purchaseDate;
     }
 
+
+    enum status {OPEN,CLOSE}
     //Struct for warranty claims
     struct warrantyClaim{
-        enum status{ OPEN, CLOSE };
+        status warrantyStatus;
         uint32 dateOfTicketOpening;
         uint32 dateOfTicketClosing;
         string complaint;
@@ -48,13 +50,13 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
 
     // modifier to check if warranty can be claimed or not
     modifier isValid(string memory serialNum){
-        require(serialNumToPurchasingHistory[serialNum][0].purchaseDate + serialNumToCurrentWarrantyPeriod[serialNum] >= now );
+        require(serialNumToPurchasingHistory[serialNum][0].purchaseDate + serialNumToCurrentWarrantyPeriod[serialNum] >= block.timestamp );
         _;
     }
 
     // to check the validity of warranty
     function checkValidity(string memory serialNum) public returns (bool){
-        if(serialNumToPurchasingHistory[serialNum][0].purchaseDate + serialNumToCurrentWarrantyPeriod[serialNum] >= now){ 
+        if(serialNumToPurchasingHistory[serialNum][0].purchaseDate + serialNumToCurrentWarrantyPeriod[serialNum] >= block.timestamp){ 
         return true;
         }else{
         return false;
@@ -62,7 +64,7 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
     }
 
     //Custom mint function
-    function safeMint(address to, string memory uri, string memory serialNum, uint memory warrantyPeriod, uint memory purchaseDate) public {
+    function safeMint(address to, string memory uri, string memory serialNum, uint warrantyPeriod, uint purchaseDate) public returns(uint){
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(to, tokenId);
@@ -70,52 +72,51 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
         serialNumToPurchasingHistory[serialNum].push(purchasingHistory(to,purchaseDate));
         serialNumToCurrentWarrantyPeriod[serialNum] = warrantyPeriod;
         emit NotifyMint(to);
+        return tokenId;
     }
 
     //Function to see the list of all the items owned by a customer
     //todo: think about access modifier
-    function showMyItems(address memory owner) view external returns(string[] calldata){
+    function showMyItems(address owner) view external returns(string[] memory){
         string[] memory listOfTokenURIs; 
-        for(int i=0; i < balanceOf(owner); i++){
-            listOfTokenURIs.push(tokenURI(tokenOfOwnerByIndex(i)));
+        for(uint i=0; i < balanceOf(owner); i++){
+            listOfTokenURIs[i] = tokenURI(tokenOfOwnerByIndex(owner, i));
         }
         return listOfTokenURIs;
     }
 
     // get purchasing history by serial number
-    function getPurchasingHistory(string memory serialNum) view external returns(purchasingHistory[] calldata){
+    function getPurchasingHistory(string memory serialNum) view external returns(purchasingHistory[] memory){
         return serialNumToPurchasingHistory[serialNum];
     }
 
     // get warranty claims history by serial number
-    function getWarrantyClaims(string memory serialNum) view external isValid(serialNum) returns(warrantyClaim[] calldata){
+    function getWarrantyClaims(string memory serialNum) view external returns(warrantyClaim[] memory){
         return serialNumToWarrantyClaims[serialNum];
     }
 
     //customer claims the warranty
-    function claimWarranty(string memory serialNum, string memory complaint) public {
-        serialNumToWarrantyClaims[serialNum].push(warranty(status.OPEN, now, 0, complaint, ""));
+    function claimWarranty(string memory serialNum, string memory complaint) public isValid(serialNum) {
+        serialNumToWarrantyClaims[serialNum].push(warrantyClaim(status.OPEN, uint32(block.timestamp), 0, complaint, ""));
     }
 
     //Enterprise closes the warranty claim
     function closeWarrantyTicket(string memory serialNum, string memory redressal) public {
-        serialNumToWarrantyClaims[serialNum][serialNumToWarrantyClaims.length - 1].status = status.CLOSE;
-        serialNumToWarrantyClaims[serialNum][serialNumToWarrantyClaims.length - 1].dateOfTicketClosing = now;
-        serialNumToWarrantyClaims[serialNum][serialNumToWarrantyClaims.length - 1].redressal = redressal;
+        serialNumToWarrantyClaims[serialNum][serialNumToWarrantyClaims[serialNum].length - 1].warrantyStatus = status.CLOSE;
+        serialNumToWarrantyClaims[serialNum][serialNumToWarrantyClaims[serialNum].length - 1].dateOfTicketClosing = uint32(block.timestamp);
+        serialNumToWarrantyClaims[serialNum][serialNumToWarrantyClaims[serialNum].length - 1].redressal = redressal;
     }
 
-    //Event for transfer of ownership
-    event Transfer(address from, address to, uint256 tokenId)
     // transfer ownership 
-    function transferOwnership(address memory to, uint memory tokenId, string memory serialNum){
+    function transferOwnership(address to, uint tokenId, string memory serialNum) public{
         _beforeTokenTransfer(msg.sender, to, tokenId);
         safeTransferFrom(msg.sender, to, tokenId);
-        serialNumToPurchasingHistory[serialNum].push(purchasingHistory(to,now));
+        serialNumToPurchasingHistory[serialNum].push(purchasingHistory(to,uint32(block.timestamp)));
         emit Transfer(msg.sender, to, tokenId);
     }
 
     //function to extend warranty
-    function extendWarranty(string memory serialNum, uint memory newWarrantyPeriod) public{
+    function extendWarranty(string memory serialNum, uint newWarrantyPeriod) public{
         serialNumToCurrentWarrantyPeriod[serialNum] = newWarrantyPeriod;
     }
 
