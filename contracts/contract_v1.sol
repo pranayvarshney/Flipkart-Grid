@@ -59,9 +59,9 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
         _;
     }
     // modifier to check whether Flipkart is making the change
-    // Used address belongs to Yuvraj
+    
     modifier isFlipkart(){
-        require(msg.sender == 0x7521bF23C427Ca52016Fda4709932C56D23aa487, "Only flipkart can make this change");
+        require(msg.sender == 0xAb8483F64d9C6d1EcF9b849Ae677dD3315835cb2, "Only flipkart can make this change");
         _;
     }
 
@@ -76,7 +76,8 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
 
     //Custom mint function
     // to is coming from IPFS file generated during order and thus we are checking whther the adress given during order placement is same as the one with which it is claimed
-    function safeMint(address to, string memory uri, string memory serialNum, uint warrantyPeriod, uint purchaseDate) public returns(uint){
+    // Test : Not recieving error message 
+    function safeMint(address to, string memory uri, string memory serialNum, uint warrantyPeriod, uint purchaseDate) external returns(uint){
         require(to == msg.sender, "You are not authorized to mint this NFT");
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
@@ -88,8 +89,10 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
         return tokenId;
     }
 
-    //Function to see the list of all the items owned by a customer
-    //todo: think about access modifier
+    // Function to see the list of all the items owned by a customer
+    // todo: think about access modifier
+    // Test : NOT PASSING
+
     function showMyItems(address owner) view external returns(string[] memory){
         string[] memory listOfTokenURIs; 
         for(uint i=0; i < balanceOf(owner); i++){
@@ -109,20 +112,21 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
     }
 
     //customer claims the warranty
-    function claimWarranty(string memory serialNum, string memory complaint) public isValid(serialNum) isOwner(serialNum){
+    //Test : 
+    function claimWarranty(string memory serialNum, string memory complaint) external isValid(serialNum) isOwner(serialNum){
         serialNumToWarrantyClaims[serialNum].push(warrantyClaim(status.OPEN, uint32(block.timestamp), 0, complaint, ""));
     }
 
     //Enterprise closes the warranty claim
-    function closeWarrantyTicket(string memory serialNum, string memory redressal) public isFlipkart(){
+    function closeWarrantyTicket(string memory serialNum, string memory redressal) external isFlipkart(){
         serialNumToWarrantyClaims[serialNum][serialNumToWarrantyClaims[serialNum].length - 1].warrantyStatus = status.CLOSE;
         serialNumToWarrantyClaims[serialNum][serialNumToWarrantyClaims[serialNum].length - 1].dateOfTicketClosing = uint32(block.timestamp);
         serialNumToWarrantyClaims[serialNum][serialNumToWarrantyClaims[serialNum].length - 1].redressal = redressal;
     }
 
     // transfer ownership 
-    function transferOwnership(address to, uint tokenId, string memory serialNum, bool isSBT) public isOwner(serialNum){
-        require(isSBT, "Your token is a SoulBound token");
+    function transferOwnership(address to, uint tokenId, string memory serialNum, bool isSBT) external isOwner(serialNum){
+        require(!isSBT, "Your token is a SoulBound token");
         _beforeTokenTransfer(msg.sender, to, tokenId);
         safeTransferFrom(msg.sender, to, tokenId);
         serialNumToPurchasingHistory[serialNum].push(purchasingHistory(to,uint32(block.timestamp)));
@@ -130,7 +134,7 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
     }
 
     //function to extend warranty
-    function extendWarranty(string memory serialNum, uint newWarrantyPeriod) public isFlipkart(){
+    function extendWarranty(string memory serialNum, uint newWarrantyPeriod) external isFlipkart(){
         serialNumToCurrentWarrantyPeriod[serialNum] = newWarrantyPeriod;
     }
 
