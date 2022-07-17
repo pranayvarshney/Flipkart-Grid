@@ -93,10 +93,11 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
     // todo: think about access modifier
     // Test : NOT PASSING
 
-    function showMyItems(address owner) view external returns(string[] memory){
-        string[] memory listOfTokenURIs; 
+    function showMyItems(address owner) view external returns(uint[] memory){
+        uint[] memory listOfTokenURIs = new uint[](balanceOf(owner));
+        
         for(uint i=0; i < balanceOf(owner); i++){
-            listOfTokenURIs[i] = tokenURI(tokenOfOwnerByIndex(owner, i));
+            listOfTokenURIs[i]= tokenOfOwnerByIndex(owner, uint(i));
         }
         return listOfTokenURIs;
     }
