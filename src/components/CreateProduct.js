@@ -1,18 +1,17 @@
 import React from 'react'
-import { Box, Heading, HStack, Stack, Text, VStack, Input, Button, FormLabel, FormControl, useColorModeValue } from '@chakra-ui/react';
+import { Heading, HStack, Stack, Text,Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react';
+import Register from './Register';
+import Ticket from './Ticket';
 function CreateProduct() {
-   const handleSubmit = () => {
-
-   }
+  
    return (
-      <HStack>
-         <VStack minH={'100vh'}
-            //   bg={'#205DA9'}
-            bgGradient="linear(to-b, #205DA9,#6697BD)"
-            w={'35%'}
-            spacing={4}
+      <HStack height={"100%"} alignItems={'center'} overflow={'hidden'} bg={'gray.700'}>
+         <Stack height={'100vh'}
+            bgGradient="linear(to-b, #FC466B,#3F5EFB)"
+            w={'35vw'}           
             paddingTop="40px"
             fontSize={'3xl'}
+            overflow={'hidden'}
 
          >
             <Stack alignItems={'center'} paddingLeft={'30px'} paddingRight={'30px'}>
@@ -28,68 +27,27 @@ function CreateProduct() {
                   tortor, mattis nec lacus non, placerat congue elit.
                </Text>
             </Stack>
-         </VStack>
+         </Stack>
          <Stack
             bg={'gray.700'}
-            minH={'100vh'}
-            w={'70%'}>
-            <Stack
-               spacing={20}
-               w={'full'}
-               maxW={'md'}
-               bg={useColorModeValue('white', 'gray.700')}
-               p={12}
-               my={8}>
-               <Heading lineHeight={1.1} fontSize={{ base: '2xl', md: '3xl', lg: '5xl' }}>
-                  Register
-               </Heading>
-               <HStack minWidth={'900px'} spacing={20}>
-                  <VStack minWidth={"40%"}>
-                     <FormControl isRequired id="productName">
-                        <FormLabel>Product Name</FormLabel>
-                        <Input type="text"
-                        />
-                     </FormControl>
-                     <FormControl isRequired id="productDesc">
-                        <FormLabel>Product description</FormLabel>
-                        <Input type="text" />
-                     </FormControl>
-                     <FormControl id="sid" isRequired>
-                        <FormLabel>Enter product serial ID</FormLabel>
-                        <Input type="text" />
-                     </FormControl>
-                  </VStack>
-                  <VStack minWidth={"40%"}>
-                     <FormControl id="pimage" isRequired>
-                        <FormLabel>Attach product image</FormLabel>
-                        <Input type="file" />
-                     </FormControl>
-                     <FormControl id="validity" isRequired>
-                        <FormLabel>Enter Warranty validity </FormLabel>
-                        <Input type="text" />
-                     </FormControl>
-                     <FormControl id="pageURL">
-                        <FormLabel>Enter product page url</FormLabel>
-                        <Input type="url" />
-                     </FormControl>
-                  </VStack>
-               </HStack>
-              
-               
-               <Stack spacing={6}>
-                  <Button
-                     fontSize={'2xl'}
-                     bg={'blue.400'}
-                     color={'white'}
-                     _hover={{
-                        bg: 'blue.500',
-                     }}
-                     onClick={handleSubmit}
-                  >
-                     Submit
-                  </Button>
-               </Stack>
-            </Stack>
+            
+            height={'100vh'}
+            w={'70%'} pt={5}>
+            <Tabs variant='soft-rounded' colorScheme='green' isManual size={'lg'} isFitted>
+               <TabList>
+                  <Tab>Register</Tab>
+                  <Tab>Warranty Ticket</Tab>
+               </TabList>
+               <TabPanels>
+                  <TabPanel>
+                     <Register />
+                  </TabPanel>
+                  <TabPanel>
+                     <Ticket/>
+                  </TabPanel>
+               </TabPanels>
+            </Tabs>
+         
          </Stack>
       </HStack>
    )

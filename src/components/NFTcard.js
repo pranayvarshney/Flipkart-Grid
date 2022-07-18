@@ -1,37 +1,55 @@
-import {
-    Badge,
-    Button,
-    Center,
-    Flex,
-    Heading,
-    Image,
-    ModalFooter,
-    ModalBody,
-    ModalCloseButton,
-    useDisclosure,
-    ModalOverlay,
-    ModalContent,
-    ModalHeader,
-    Modal,
-    FormControl,
-    FormLabel,
-    Input,
-    Link,
-    Stack,
-    Text,
-    useColorModeValue,
-} from '@chakra-ui/react';
+import { Badge, TableContainer, Tr, Thead, Table, Th, Tbody, Td, Tfoot, TableCaption, Wrap, WrapItem, Button, Center, Flex, Heading, Image, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, ModalOverlay, ModalContent, ModalHeader, Modal, FormControl, FormLabel, Input, Link, Stack, Text, useColorModeValue, VStack, HStack } from '@chakra-ui/react';
+import { useState, useEffect } from 'react';
+import abi from './abi.json'
+const Web3 = require('web3');
+export default function NFTcard({ prop }) {
+    const [data, setData] = useState()
+    var owner = []
+    var purchas = []
+    const [ownerAdd, setOwnerAdd] = useState()
+    const [purchaseD, setPurchaseD] = useState()
+    const details = async () => {
+        const k = await fetch(`https://ipfs.infura.io/ipfs/${prop}`)
 
-export default function NFTcard() {
+        setData(await k.json())
+
+    }
+
+    useEffect(() => {
+
+        details()
+    }, []);
+    const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
+    const contactAddress = "0x71b49E86710a3D22F6BE1dA493d691aAC1f71Fae";
+
+    const contract = new web3.eth.Contract(abi, contactAddress)
+
+
+    const getPurchasingHistory = () => {
+        contract.methods.getPurchasingHistory("12349iuawrdtg25").call().then((item) => {
+            for (var i = 0; i < item.length; i++) {
+                owner.push(item[i].ownerAdd)
+                purchas.push(item[i].purchaseDate)
+            }
+            setOwnerAdd(owner)
+            setPurchaseD(purchas)
+            console.log(owner);
+            console.log(purchas);
+
+        }).catch(err => console.log(err))
+    }
+
     var isValid = true;
-    const { isOpen, onOpen, onClose } = useDisclosure()
+    const { isOpen: isTransferOpen, onOpen: onTransferOpen, onClose: onTransferClose } = useDisclosure()
+    const { isOpen: isHistoryOpen, onOpen: onHistoryOpen, onClose: onHistoryClose } = useDisclosure()
+    const { isOpen: isClaimOpen, onOpen: onClaimOpen, onClose: onClaimClose } = useDisclosure()
     return (
         <Center py={6}>
             <Stack
                 borderWidth="1px"
                 borderRadius="lg"
-                w={{ sm: '100%', md: '540px',lg:'500px' }}
-                height={{ sm: '476px', md: '20rem' ,lg:'fit-content'}}
+                w={{ sm: '100%', md: '540px', lg: '500px' }}
+                height={{ sm: '476px', md: '20rem', lg: 'fit-content' }}
                 direction={{ base: 'column', md: 'row' }}
                 bg={useColorModeValue('white', 'gray.900')}
                 boxShadow={'2xl'}
@@ -41,9 +59,7 @@ export default function NFTcard() {
                     <Image
                         objectFit="cover"
                         boxSize="100%"
-                        src={
-                            'https://images.unsplash.com/photo-1518051870910-a46e30d9db16?ixlib=rb-1.2.1&ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&auto=format&fit=crop&w=1350&q=80'
-                        }
+                    // src={data&&data.image}
                     />
                 </Flex>
                 <Stack
@@ -54,26 +70,25 @@ export default function NFTcard() {
                     p={1}
                     pt={2}>
                     <Heading fontSize={'2xl'} fontFamily={'body'}>
-                        Product Name
+                        {data && data.name}
                     </Heading>
-                    <Link fontWeight={600} color={'gray.500'} size="sm" mb={4} href={'https://pageurl.com'}>
-                        https://pageurl.com
+                    <Link fontWeight={600} color={'gray.500'} size="sm" mb={4} href={data && data.pageURL}>
+                        {data && data.pageURL}
                     </Link>
-                     <Text
+                    <Text
                         textAlign={'center'}
                         color={useColorModeValue('gray.700', 'gray.400')}
                         px={3}>
-                        product description Lorem ipsum, dolor sit amet consectetur adipisicing elit. Iusto libero laborum quis 
-                         me in your posts
+                        {data && data.description}
                     </Text>
-                   
-                        <Badge
-                            px={2}
-                            py={1}
-                            bg={useColorModeValue('gray.50', 'gray.800')}
-                            fontWeight={'400'}>
-                           SID- Lorem ipsum dolor 
-                        </Badge>
+
+                    <Badge
+                        px={2}
+                        py={1}
+                        bg={useColorModeValue('gray.50', 'gray.800')}
+                        fontWeight={'400'}>
+                        SID- {data && data.sid}
+                    </Badge>
                     <Badge
                         px={1}
                         py={1}
@@ -82,11 +97,23 @@ export default function NFTcard() {
                         fontSize={'lg'}
                         width={'fit-content'}
                         alignItems={'center'}
-                        >
-                        Warranty {' '} {isValid?<Text color={'green.300'} ml={5}>valid</Text>:<Text ml={3} color={'red'}>Invalid</Text>}
+                    >
+                        Warranty {' '} {isValid ? <Text color={'green.300'} ml={5}>valid</Text> : <Text ml={3} color={'red'}>Invalid</Text>}
                     </Badge>
-                    
-                      
+
+                    <Stack>
+                        <Wrap spacing={4}>
+                            <WrapItem>
+                                <Button colorScheme='teal' size='xs' onClick={() => {
+                                    onHistoryOpen()
+                                    getPurchasingHistory()
+                                }}   >Owner History</Button>
+                            </WrapItem>
+                            <WrapItem>
+                                <Button colorScheme='teal' size='xs' onClick={onClaimOpen}>Claims History</Button>
+                            </WrapItem>
+                        </Wrap>
+                    </Stack>
                     <Stack
                         width={'100%'}
                         mt={'2rem'}
@@ -94,8 +121,8 @@ export default function NFTcard() {
                         padding={2}
                         justifyContent={'space-between'}
                         alignItems={'center'}>
-                       <Button
-                       onClick={onOpen}
+                        <Button
+                            onClick={onTransferOpen}
                             flex={1}
                             fontSize={'sm'}
                             rounded={'full'}
@@ -113,7 +140,7 @@ export default function NFTcard() {
                             Transfer
                         </Button>
                     </Stack>
-                    <Modal isOpen={isOpen} onClose={onClose}>
+                    <Modal isOpen={isTransferOpen} onClose={onTransferClose}>
                         <ModalOverlay />
                         <ModalContent>
                             <ModalHeader fontSize={'3xl'} >Transfer NFT</ModalHeader>
@@ -128,7 +155,68 @@ export default function NFTcard() {
                                 <Button colorScheme='purple' mr={3}>
                                     Transfer
                                 </Button>
-                                <Button colorScheme='blue' mr={3} onClick={onClose}>
+                                <Button colorScheme='blue' mr={3} onClick={onTransferClose}>
+                                    Close
+                                </Button>
+
+                            </ModalFooter>
+                        </ModalContent>
+                    </Modal>
+                    <Modal isOpen={isHistoryOpen} onClose={onHistoryClose} size={'xl'}>
+                        <ModalOverlay />
+                        <ModalContent>
+                            <ModalHeader fontSize={'3xl'} >Owner History</ModalHeader>
+                            <ModalCloseButton />
+                            <ModalBody>
+
+                                <TableContainer>
+                                    <Table variant='simple'>
+                                        <TableCaption>History of Old Owners</TableCaption>
+                                        <Tbody>
+                                            <HStack>
+                                                <VStack w={'min-content'}>
+                                                    <Th>Owner Address</Th>
+                                                    {ownerAdd && ownerAdd.map((item) => {
+                                                        return <Td fontSize={'sm'}>{item}</Td>
+                                                    })
+
+                                                    }
+
+                                                </VStack>
+                                                <VStack w={'min-content'}>
+                                                    <Th>Purchase Date</Th>
+                                                    {purchaseD && purchaseD.map((item) => {
+                                                        return <Td>{item}</Td>
+                                                    })
+                                                    }
+
+                                                </VStack>
+
+                                            </HStack>
+                                        </Tbody>
+
+                                    </Table>
+                                </TableContainer>
+
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button colorScheme='blue' mr={3} onClick={onHistoryClose}>
+                                    Close
+                                </Button>
+
+                            </ModalFooter>
+                        </ModalContent>
+                    </Modal>
+                    <Modal isOpen={isClaimOpen} onClose={onClaimClose}>
+                        <ModalOverlay />
+                        <ModalContent>
+                            <ModalHeader fontSize={'3xl'} >Claims History</ModalHeader>
+                            <ModalCloseButton />
+                            <ModalBody>
+                                Claims
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button colorScheme='blue' mr={3} onClick={onClaimClose}>
                                     Close
                                 </Button>
 
