@@ -1,0 +1,2 @@
+Super coin address = 0x937ad957c99b8E39232cB867d3E81ba05267886b
+Product V3 address = 0xDeB7Cb440a74b4ed79e2E71f68975682EBeCD1c4
