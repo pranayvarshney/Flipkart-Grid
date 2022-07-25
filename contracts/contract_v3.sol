@@ -25,16 +25,6 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable{
     Counters.Counter private _tokenIdCounter;
     constructor() ERC721("Product", "PDCT") {
     }
-
-    //update warranty status
-    function updateWarrantyStatus() external{
-        for(uint i=0; i< serialNumArray.length; i++){
-            string memory serialNum = serialNumArray[i];
-            if(serialNumToCurrentWarranty[serialNum].warrantyStartDate + serialNumToCurrentWarranty[serialNum].warrantyPeriod > block.timestamp){
-                serialNumToCurrentWarranty[serialNum].validity = false;
-            }
-        }
-    }
  
     //Supercoin interface initialisation
     address scAddress = 0xdd249a223B3745626108321aAC5e1E380EAfD359;
@@ -131,6 +121,21 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable{
 
 
     //FUNCTIONS
+
+    //Function to update warranty status
+    function updateWarrantyStatus() external{
+        for(uint i=0; i< serialNumArray.length; i++){
+            string memory serialNum = serialNumArray[i];
+            if(serialNumToCurrentWarranty[serialNum].warrantyStartDate + serialNumToCurrentWarranty[serialNum].warrantyPeriod < block.timestamp){
+                serialNumToCurrentWarranty[serialNum].validity = false;
+            }
+        }
+    }
+    
+    //Function to get the expiry date
+    function getExpiryDate(string memory serialNum) external view returns(uint){
+        return serialNumToCurrentWarranty[serialNum].warrantyStartDate + serialNumToCurrentWarranty[serialNum].warrantyPeriod;
+    }
 
     // to check the validity of warranty
     function checkValidity(string memory serialNum) view external returns(bool) {
@@ -246,8 +251,12 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable{
         super._beforeTokenTransfer(from, to, tokenId);
     }
  
-    function _burn(uint256 tokenID) internal override (ERC721,ERC721URIStorage){
- 
+    function burn(uint256 tokenID) external{
+        _beforeTokenTransfer(msg.sender, address(0), tokenID);
+        _burn(tokenID);
+    }
+    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
+        super._burn(tokenId);
     }
     function tokenURI(uint256 tokenId)
         public
