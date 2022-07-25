@@ -105,11 +105,11 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable{
         require(serialNumToPurchasingHistory[serialNum][serialNumToPurchasingHistory[serialNum].length -1].ownerAdd == msg.sender, "You are not the current owner");
         _;
     }
-    // modifier to check whether Flipkart is making the change 
+    // modifier to check whether Enterprise is making the change 
     // Yuvraj's address and Pranay's address
     
     modifier isEnterprise(){
-        require(msg.sender == 0x7521bF23C427Ca52016Fda4709932C56D23aa487 || msg.sender == 0x9351536C6550CB777eF2624D2A78ed64053c1F07, "Only flipkart can make this change");
+        require(msg.sender == 0x7521bF23C427Ca52016Fda4709932C56D23aa487 || msg.sender == 0x9351536C6550CB777eF2624D2A78ed64053c1F07, "Only Enterprise can make this change");
         _;
     }
  
