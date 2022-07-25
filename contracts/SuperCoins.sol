@@ -55,10 +55,10 @@ contract SuperCoin is ERC721, ERC721Burnable, Ownable {
         cutomerSCMintNumAllowed[to]--;
     }
 
-    function burnSC(uint numSuperCoins) external{
+    function burnSC(uint numSuperCoins, address customer) external{
         for(uint i=0; i< numSuperCoins; i++){
-            uint tokenId = ownerToSuperCoins[msg.sender][ownerToSuperCoins[msg.sender].length-1];
-            ownerToSuperCoins[msg.sender].pop();
+            uint tokenId = ownerToSuperCoins[customer][ownerToSuperCoins[customer].length-1];
+            ownerToSuperCoins[customer].pop();
             _burn(tokenId);
         }
     }

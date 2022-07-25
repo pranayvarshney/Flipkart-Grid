@@ -16,7 +16,7 @@ interface SuperCoinInterface{
     function safeMint(address to) external;
     function raise(address customer, string memory serialNum, uint numSCInc) external;
     function blockSerialNumForSC(string memory serialNum) external;
-    function burnSC(uint numSuperCoins) external;
+    function burnSC(uint numSuperCoins, address customer) external;
 }
  
 contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Ownable{
@@ -30,14 +30,14 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
     function updateWarrantyStatus() external{
         for(uint i=0; i< serialNumArray.length; i++){
             string memory serialNum = serialNumArray[i];
-            if(serialNumToCurrentWarranty[serialNum].warrantyStartDate + serialNumToCurrentWarranty[serialNum].warrantyPeriod < block.timestamp){
+            if(serialNumToCurrentWarranty[serialNum].warrantyStartDate + serialNumToCurrentWarranty[serialNum].warrantyPeriod > block.timestamp){
                 serialNumToCurrentWarranty[serialNum].validity = false;
             }
         }
     }
  
     //supercoin interface
-    address scAddress = 0xB14b0F0DD6408a3EaC4c0D6D844D02857d859313;
+    address scAddress = 0xdd249a223B3745626108321aAC5e1E380EAfD359;
     SuperCoinInterface superCoinContract = SuperCoinInterface(scAddress);
   
     //Struct for Purchasing History
@@ -162,12 +162,12 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
     // Test : NOT PASSING
  
     function showMyItems(address owner) view external returns(uint[] memory){
-        uint[] memory listOfTokenURIs = new uint[](balanceOf(owner));
+        uint[] memory listOfToken = new uint[](balanceOf(owner));
         
         for(uint i=0; i < balanceOf(owner); i++){
-            listOfTokenURIs[i]= tokenOfOwnerByIndex(owner, uint(i));
+            listOfToken[i]= tokenOfOwnerByIndex(owner, uint(i));
         }
-        return listOfTokenURIs;
+        return listOfToken;
     }
  
     // get purchasing history by serial number
@@ -218,12 +218,12 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
         customer = payable(msg.sender);
         // price = 10 supercoins
         uint price = 10000000; //Gwei equivalent of 0.01 ether
-        require(msg.value >= ((price * (1 gwei)) - (superCoinNum * (1000000 gwei))) , "Insufficient Balance");
+        require((msg.value * 1 gwei) >= ((price * (1 gwei)) - (superCoinNum * (1000000 gwei))) , "Insufficient Balance");
         customer.transfer(msg.value -  ((price * (1 gwei)) - (superCoinNum * (1000000 gwei))));
         serialNumToCurrentWarranty[serialNum].warrantyStartDate = block.timestamp;
         serialNumToCurrentWarranty[serialNum].warrantyPeriod = newWarrantyPeriod;
         serialNumToCurrentWarranty[serialNum].validity = true;
-        superCoinContract.burnSC(superCoinNum);
+        superCoinContract.burnSC(superCoinNum, msg.sender);
         emit burnSuperCoins(msg.sender,superCoinNum);
     }
     //Event to return balance of the contract
@@ -233,6 +233,11 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
         emit contractBalanceEvent(address(this).balance);
         return address(this).balance;
     }
+
+    function withdraw() external onlyOwner {
+        address payable _owner = payable(address(uint160(owner())));
+        _owner.transfer(address(this).balance);
+  }
  
     // The following functions are overrides required by Solidity.
     function _beforeTokenTransfer(address from, address to, uint256 tokenId)
