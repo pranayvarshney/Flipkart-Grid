@@ -9,6 +9,9 @@ const SidSchema = mongoose.Schema({
     hash :{
         type : String,
         required : true,
+    },
+    tokenID :{
+        type : Number
     }
 })
 

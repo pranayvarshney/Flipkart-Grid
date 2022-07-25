@@ -12,68 +12,99 @@ import {
   ModalBody,
   ModalCloseButton,
   useDisclosure,
+  useToast,
 } from '@chakra-ui/react'
 import abi from './abi.json'
+import axios from 'axios'
 import ParentComp from './ParentComp';
+import Navbar from './Navbar'
 const Web3 = require('web3');
 function Home() {
-  // const test = async () =>{
-  //   const data =  await axios.post('/api/sid/find', { sid:"12349iuawrdtg25"})
-  //   console.log(data)
 
-  // }
-  // test()
-
+  const toast = useToast()
   const uri = []
+  const [tsid,settsid]=useState()
   const [nfts,Setnfts] = useState()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const address = (window.ethereum.selectedAddress);
   const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
-  const contactAddress = "0x71b49E86710a3D22F6BE1dA493d691aAC1f71Fae";
-  
+  const contactAddress = process.env.REACT_APP_CONTRACT_ADDRESS;  
   const contract = new web3.eth.Contract(abi, contactAddress)
-  const mint = () => {
-    contract.methods.safeMint(address, "QmXNRigf3q2ECs3wZJHriRiZLV1a67yBuSrnz6B7BjrjAb", "993445dfgrdtg25", 16580085, 1658085066)
-      .send({ from: address, gas: "3000000" })
-      .then((item) => { console.log(item) }).catch(err => console.log(err))
+  var flag = 1;
 
+  const mint = async() => {
+    const sid = (document.getElementById('claimSID')).value
+    settsid(sid)
+    const data =  await axios.post('/api/sid/find', { sid:sid})
+    const hash = (data.data[0].hash);
+    const k = await fetch(`https://ipfs.infura.io/ipfs/${hash}`)
+    const uri = await k.json()
+    const validity =(await uri.validity)
+    const purchaseDate = await uri.purchaseDate
+    if(purchaseDate){
+      contract.methods.safeMint(address, hash, sid, validity, purchaseDate)
+        .send({ from: address, gas: "3000000" })
+        .then((item) => {   
+           console.log(item);
+          toast({
+            title: "NFT minted successfully",
+            status: 'success',
+            isClosable: true,
+          })                 
+         }).catch(err=>{
+          console.log(err);
+           toast({
+             title: "Failure in Minting NFT",
+             status: 'error',
+             isClosable: true,
+           })
+         })
+    }
+    // 
   }
+  
+ contract.events.NotifyMint(async(err,res)=>{
+   
+   var tokenid = (res.returnValues)[1]
+   await axios.put('/api/saveID', { sid: tsid, tokenID: tokenid })
+   generate();
+  }
+  )
+  contract.events.Transfer(async (err, res) => {
+    generate();
+  }
+  )
+
 
   const generate = async () => {
-
-    const myitems = await contract.methods.showMyItems(address).call()
-
-    if (myitems) {
-      for (var i = 0; i < myitems.length; i++) {
-        var oneURI = await contract.methods.tokenURI(myitems[i]).call()
-        uri.push(oneURI);
+    const kkk = (window.ethereum.selectedAddress);
+    try{
+      const myitems = await contract.methods.showMyItems(kkk).call()
+      if (myitems) {
+        for (var i = 0; i < myitems.length; i++) {
+          var oneURI = await contract.methods.tokenURI(myitems[i]).call()
+          uri.push(oneURI);
+        }
+        Setnfts(uri)
       }
-      Setnfts(uri)
-    } 
-
+    }
+    catch(err){
+      console.log(err)
+    }
+    
   }
   useEffect(() => {
-    console.log("running")
+   
     generate()
   }, []);
 
   return (
     <>
+      <Navbar   />
       <Stack spacing={4}>
-        <Heading
-          lineHeight={1.5}
-          width={'fit-content'}
-          fontSize={{ base: '3xl', sm: '4xl', md: '5xl', lg: '7xl' }}
-          ml={20}
-          mt={8}
-          bgGradient="linear(to-r, purple.500, cyan.400)"
-          bgClip="text"
-        >
-
-          My NFTs {' '}
-        </Heading>
+        
         <Stack flexDirection={'row'} justifyContent={'center'} alignItems={'center'} flexWrap={'wrap'} width={'100%'} rowGap={8} columnGap={24} >
-          
+         
          <ParentComp uri={nfts} />
           
         </Stack>

@@ -10,18 +10,26 @@ import {
 } from "react-router-dom";
 import CreateProduct from './components/CreateProduct';
 import ClientLanding from './components/ClientLanding';
+import { extendTheme } from '@chakra-ui/react'
 import Home from './components/Home';
+import Leaderboard from './components/Leaderboard';
 
+const config = {
+  initialColorMode: 'dark',
+  useSystemColorMode: false,
+}
+
+const theme = extendTheme({ config })
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
-  <ChakraProvider>
-    <BrowserRouter>
-     
+  <ChakraProvider theme={theme}>
+    <BrowserRouter>     
         <Routes>
           <Route path="/" element={<App />}/>     
           <Route path="/claim" element={<ClientLanding />}/> 
           <Route path='/create' element={<CreateProduct/>}/>
           <Route path='/home' element={<Home/>}/>
+          <Route path='/leaderboard' element={<Leaderboard/>}/>
         </Routes>
        
 

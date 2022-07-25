@@ -1,6 +1,6 @@
 import React,{useState,useEffect} from 'react'
 import axios from 'axios'
-import { Heading, HStack, Stack, VStack, Input, Button, FormLabel, FormControl, useColorModeValue,Checkbox, CheckboxGroup} from '@chakra-ui/react';
+import { Heading, HStack, useToast , Stack, VStack, Input, Button, FormLabel, FormControl, useColorModeValue,Checkbox} from '@chakra-ui/react';
 import ipfs from '../ipfs.js'
 function Register() {
     const [productName, setProductName] = useState();
@@ -10,12 +10,13 @@ function Register() {
     const [pageURL, setpageURL] = useState();
     const [path, setPath] = useState();
     const [ipfsHash, setIpfsHash] = useState();
-    const [isSBT, setisSBT] = useState(true);
+    const toast = useToast()
+
     const handleSubmit = async() => {
         setProductName((document.getElementById("productName")).value)
         setProductDesc((document.getElementById("productDesc")).value)
         setSid((document.getElementById("sid")).value)
-        setvalidity((document.getElementById("validity")).value)
+        setvalidity(Number((document.getElementById("validity")).value))
         setpageURL((document.getElementById("pageURL")).value)
         
         const files =(document.getElementById("pimage")).files
@@ -26,22 +27,25 @@ function Register() {
         console.log(result)
     }
     useEffect(() => {
-
+        const today = Number(new Date())
         const item = {
             "name": productName,
             "description": productDesc,
             "sid" : sid,
             "validity" : validity,
-            "isSoulBound":isSBT,
-            "pageURL":pageURL,
-            "purchaseDate" : Number(new Date()),
+             "pageURL":pageURL,
+            "purchaseDate": Math.floor(today/1000),
             "image": `http://ipfs.infura.io/ipfs/${path}`
         }
         const createNFT = async () => {
             var buf = Buffer.from(JSON.stringify(item));
             const nft = await ipfs.add(buf)
             setIpfsHash(nft.path)
-           
+            toast({
+                title: "Product Successfully created",
+                status: 'success',
+                isClosable: true,
+            })
             console.log(nft)
            
         }
@@ -74,7 +78,7 @@ function Register() {
           <Heading lineHeight={1.1} fontSize={{ base: '2xl', md: '3xl', lg: '5xl' }}>
               Register
           </Heading>
-          <HStack minWidth={'900px'} spacing={20}>
+          <HStack minWidth={'900px'} spacing={20} alignItems={'flex-start'}>
               <VStack minWidth={"40%"}>
                   <FormControl isRequired id="productName">
                       <FormLabel>Product Name</FormLabel>
@@ -89,7 +93,10 @@ function Register() {
                       <FormLabel>Enter product serial ID</FormLabel>
                       <Input type="text" />
                   </FormControl>
-                 
+                  <FormControl id="pno">
+                      <FormLabel>Enter phone number</FormLabel>
+                      <Input type="text" />
+                  </FormControl>
               </VStack>
              
               <VStack minWidth={"40%"}>
@@ -105,13 +112,12 @@ function Register() {
                       <FormLabel>Enter product page url</FormLabel>
                       <Input type="url" />
                   </FormControl>
+                 
                
               </VStack>
              
           </HStack>
-          <Checkbox size='lg' colorScheme='green' defaultChecked onChange={(e)=>setisSBT(!isSBT)}>
-              Is Soul Bound?
-          </Checkbox>
+         
           <Stack spacing={2}>
               <Button
                   fontSize={'2xl'}

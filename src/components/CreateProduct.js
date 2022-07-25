@@ -2,6 +2,7 @@ import React from 'react'
 import { Heading, HStack, Stack, Text,Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react';
 import Register from './Register';
 import Ticket from './Ticket';
+import BulkUpload from './BulkUpload';
 function CreateProduct() {
   
    return (
@@ -36,11 +37,15 @@ function CreateProduct() {
             <Tabs variant='soft-rounded' colorScheme='green' isManual size={'lg'} isFitted>
                <TabList>
                   <Tab>Register</Tab>
+                  <Tab>Bulk upload </Tab>
                   <Tab>Warranty Ticket</Tab>
                </TabList>
                <TabPanels>
                   <TabPanel>
                      <Register />
+                  </TabPanel>
+                  <TabPanel>
+                     <BulkUpload/>
                   </TabPanel>
                   <TabPanel>
                      <Ticket/>

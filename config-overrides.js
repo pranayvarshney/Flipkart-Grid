@@ -10,7 +10,7 @@ module.exports = function override(config,env) {
         "https": require.resolve("https-browserify"),
         "buffer": require.resolve("buffer"),
         "os": require.resolve("os-browserify"),
-        "url": require.resolve("url")
+        "url": require.resolve("url"),
     })
     config.module.rules.push({
         test: /\.m?js/,
