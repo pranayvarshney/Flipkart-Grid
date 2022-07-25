@@ -19,7 +19,7 @@ interface SuperCoinInterface{
     function burnSC(uint numSuperCoins, address customer) external;
 }
  
-contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Ownable{
+contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable{
     using Counters for Counters.Counter;
  
     Counters.Counter private _tokenIdCounter;
@@ -36,17 +36,18 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
         }
     }
  
-    //supercoin interface
+    //Supercoin interface initialisation
     address scAddress = 0xdd249a223B3745626108321aAC5e1E380EAfD359;
     SuperCoinInterface superCoinContract = SuperCoinInterface(scAddress);
   
+
+    // DATA STRUCTURES
+
     //Struct for Purchasing History
     struct purchasingHistory{
         address ownerAdd;
         uint purchaseDate;
     }
- 
- 
     enum status {OPEN,CLOSE}
     //Struct for warranty claims
     struct warrantyClaim{
@@ -56,7 +57,7 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
         string complaint;
         string redressal;
     }
- 
+    //Struct for general warrnaty info
     struct warranty{
         uint warrantyPeriod;
         uint warrantyStartDate;
@@ -65,19 +66,36 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
     //array storing the serial number of all purchases
     string[] serialNumArray; 
  
+
+    // MAPPINGS
+
     //mapping for Purchasing history
     mapping(string => purchasingHistory[]) internal serialNumToPurchasingHistory;
- 
     //mapping for warranty
     mapping(string => warrantyClaim[]) internal serialNumToWarrantyClaims;
- 
     //mapping for serialNum to current warranty period
     mapping(string => warranty) internal serialNumToCurrentWarranty;
  
-    //Event to notify minting is completed
+
+    // EVENTS
+
+    //Notify mint event: Event to notify minting is completed
     event NotifyMint(address, uint);
- 
- 
+    //loyality benfits event : Will tell how many supercoins (uint) to give to whom (address)
+    event benefits(address,uint);
+    //Burn Super Coins event: Event for burning the supercoins
+    event burnSuperCoins(address customer, uint numOfSuperCoins);
+    //Contract Balance Event: Event to return balance of the contract
+    event contractBalanceEvent(uint);
+    
+
+    //MODIFIERS
+
+    // modifier to check if customer has sufficient superCoin balance or not
+    modifier sufficientSuperCoinBalance(uint superCoinNum, address customer){
+        require(superCoinContract.balanceOf(customer) >= superCoinNum);
+        _;
+    }
  
     // modifier to check if the last claim has been already settled or not before making this new claim
     modifier isLastClaimSettled(string memory serialNum){
@@ -98,10 +116,10 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
         _;
     }
     // modifier to check whether Flipkart is making the change 
-    // Yuvraj's address
+    // Yuvraj's address and Pranay's address
     
-    modifier isFlipkart(){
-        require(msg.sender == 0x7521bF23C427Ca52016Fda4709932C56D23aa487, "Only flipkart can make this change");
+    modifier isEnterprise(){
+        require(msg.sender == 0x7521bF23C427Ca52016Fda4709932C56D23aa487 || msg.sender == 0x9351536C6550CB777eF2624D2A78ed64053c1F07, "Only flipkart can make this change");
         _;
     }
  
@@ -110,16 +128,14 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
         require(serialNumToPurchasingHistory[serialNum].length == 0, "This Serial Id's NFT has already been minted" );
         _;
     } 
- 
-    //Event : check the validity
-    event checkValidityEvent(bool);
+
+
+    //FUNCTIONS
+
     // to check the validity of warranty
-    function checkValidity(string memory serialNum) external{
-        emit checkValidityEvent(serialNumToCurrentWarranty[serialNum].validity);
+    function checkValidity(string memory serialNum) view external returns(bool) {
+        return serialNumToCurrentWarranty[serialNum].validity;
     }
- 
-    //layality benfits event : Will tell how many supercoins (uint) to give to whom (address)
-    event benefits(address,uint);
  
     //function to award benefits on different scenerios
     function awardBenefit(address to, string memory serialNum) private{
@@ -138,10 +154,8 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
 
     } 
  
- 
     //Custom mint function
     // to is coming from IPFS file generated during order and thus we are checking whther the adress given during order placement is same as the one with which it is claimed
-    // Test : Not recieving error message 
     function safeMint(address to, string memory uri, string memory serialNum, uint _warrantyPeriod, uint purchaseDate) external isNotMinted(serialNum){
         require(to == msg.sender, "You are not authorized to mint this NFT");
         uint256 tokenId = _tokenIdCounter.current();
@@ -158,42 +172,37 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
     }
  
     // Function to see the list of all the items owned by a customer
-    // todo: think about access modifier
-    // Test : NOT PASSING
- 
     function showMyItems(address owner) view external returns(uint[] memory){
-        uint[] memory listOfToken = new uint[](balanceOf(owner));
-        
+        uint[] memory listOfToken = new uint[](balanceOf(owner));     
         for(uint i=0; i < balanceOf(owner); i++){
             listOfToken[i]= tokenOfOwnerByIndex(owner, uint(i));
         }
         return listOfToken;
     }
  
-    // get purchasing history by serial number
+    // Function to get purchasing history by serial number
     function getPurchasingHistory(string memory serialNum) view external returns(purchasingHistory[] memory){
         return serialNumToPurchasingHistory[serialNum];
     }
  
-    // get warranty claims history by serial number
+    // Function to get warranty claims history by serial number
     function getWarrantyClaims(string memory serialNum) view external returns(warrantyClaim[] memory){
         return serialNumToWarrantyClaims[serialNum];
     }
  
-    //customer claims the warranty
-    //Test : 
+    // Function to claim the warranty
     function claimWarranty(string memory serialNum, string memory complaint) external isValid(serialNum) isOwner(serialNum)  isLastClaimSettled(serialNum){
         serialNumToWarrantyClaims[serialNum].push(warrantyClaim(status.OPEN, uint32(block.timestamp), 0, complaint, ""));
     }
  
-    //Enterprise closes the warranty claim
-    function closeWarrantyTicket(string memory serialNum, string memory redressal) external isFlipkart(){
+    // Function to closes the warranty claim by Enterprise
+    function closeWarrantyTicket(string memory serialNum, string memory redressal) external isEnterprise(){
         serialNumToWarrantyClaims[serialNum][serialNumToWarrantyClaims[serialNum].length - 1].warrantyStatus = status.CLOSE;
         serialNumToWarrantyClaims[serialNum][serialNumToWarrantyClaims[serialNum].length - 1].dateOfTicketClosing = uint32(block.timestamp);
         serialNumToWarrantyClaims[serialNum][serialNumToWarrantyClaims[serialNum].length - 1].redressal = redressal;
     }
  
-    // transfer ownership 
+    // Function to transfer ownership 
     function transferOwnership(address to, uint tokenId, string memory serialNum, bool isSBT) external isOwner(serialNum){
         require(!isSBT, "Your token is a SoulBound token");
         _beforeTokenTransfer(msg.sender, to, tokenId);
@@ -202,17 +211,7 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
         emit Transfer(msg.sender, to, tokenId);
     }
  
-    //function to extend warranty
- 
-    modifier sufficientSuperCoinBalance(uint superCoinNum, address customer){
-        // will check if customer has sufficient superCoin balance or not
-        require(superCoinContract.balanceOf(customer) >= superCoinNum);
-        _;
-    }
- 
-    //Event for 
-    event burnSuperCoins(address customer, uint numOfSuperCoins);
- 
+    //Function to extend warranty
     function extendWarranty(string memory serialNum, uint newWarrantyPeriod, uint superCoinNum) external payable sufficientSuperCoinBalance(superCoinNum, msg.sender){
         address payable customer;
         customer = payable(msg.sender);
@@ -226,14 +225,14 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, 
         superCoinContract.burnSC(superCoinNum, msg.sender);
         emit burnSuperCoins(msg.sender,superCoinNum);
     }
-    //Event to return balance of the contract
-    event contractBalanceEvent(uint);
 
+    //Function to get the balance of the contract
     function getBalance() external returns(uint){
         emit contractBalanceEvent(address(this).balance);
         return address(this).balance;
     }
 
+    //Function to withdraw deposited ethers from the contract
     function withdraw() external onlyOwner {
         address payable _owner = payable(address(uint160(owner())));
         _owner.transfer(address(this).balance);
