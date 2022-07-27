@@ -5,7 +5,11 @@ const mongoose = require('mongoose')
 const SidSchema = require('./SidModel')
 const prodNameToHash = require('./ProductModel')
 const userAddress = require('./UserAddressModel')
-mongoose.connect('mongodb+srv://node-shop:node-shop@node-rest-shop.sttq1.mongodb.net/Flipkart-grid?retryWrites=true&w=majority')
+require('dotenv').config()
+mongoose.connect(process.env.mongoURI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+   })
 const db = mongoose.connection
 
 db.on('connected',()=>{
