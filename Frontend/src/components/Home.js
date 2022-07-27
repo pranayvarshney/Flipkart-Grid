@@ -99,16 +99,19 @@ function Home() {
 
 
   const generate = async () => {
-    const kkk = (window.ethereum.selectedAddress);
     try {
-      const myitems = await contract.methods.showMyItems(kkk).call()
-      if (myitems) {
-        for (var i = 0; i < myitems.length; i++) {
-          var oneURI = await contract.methods.tokenURI(myitems[i]).call()
-          uri.push(oneURI);
+      const kkk = await window.ethereum.request({ method: 'eth_accounts' });
+      if(kkk){
+        const myitems = await contract.methods.showMyItems(kkk[0]).call()
+        if (myitems) {
+          for (var i = 0; i < myitems.length; i++) {
+            var oneURI = await contract.methods.tokenURI(myitems[i]).call()
+            uri.push(oneURI);
+          }
+          Setnfts(uri)
         }
-        Setnfts(uri)
       }
+      
     }
     catch (err) {
       console.log(err)
