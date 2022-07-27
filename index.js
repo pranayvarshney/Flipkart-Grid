@@ -24,7 +24,7 @@ app.use(express.json())
 
 
 
-app.get('/api', (req, res) => {
+app.get('/', (req, res) => {
     res.status(200).send('<h1>hello</h1>')
 })
 
@@ -108,7 +108,7 @@ function TestMessage(phoneNumber,serialID) {
 // app.use(express.static('public'))
 
 
-const port =  process.env.port || 5000
+const port =  process.env.PORT || 5000
 app.listen(port, () => {
     console.log(`started at ${port}`)
 })
