@@ -3,6 +3,8 @@ import {
     TableContainer,
     Tr,
     Thead,
+    HStack,
+    VStack,
     Table,
     Th,
     Divider,
@@ -11,6 +13,9 @@ import {
     TableCaption,
     Wrap,
     WrapItem,
+    Tab, Tabs,
+    TabList,
+    TabPanels, TabPanel,
     Button,
     Center,
     Flex,
@@ -36,11 +41,15 @@ import {
 import { useState, useEffect } from "react";
 import axios from "axios";
 import abi from "./abi.json";
+import { RepeatClockIcon, ArrowForwardIcon, DeleteIcon } from '@chakra-ui/icons'
+import { BiWrench } from 'react-icons/bi';
 const Web3 = require("web3");
+
 export default function NFTcard({ prop }) {
     const [data, setData] = useState();
 
     const toast = useToast();
+    const [enddate, setEnddate] = useState()
     const [claims, setClaims] = useState();
     const [purchaseD, setPurchaseD] = useState();
     const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
@@ -51,21 +60,47 @@ export default function NFTcard({ prop }) {
 
     const details = async () => {
         const k = await fetch(`https://ipfs.infura.io/ipfs/${prop}`);
-
         setData(await k.json());
-        if (data) {
-            checkValidity(data.sid);
-        }
     };
 
     useEffect(() => {
         details();
     }, []);
+    useEffect(() => {
+        if (data) {
+            checkValidity(data.sid);
+            getEndDate(data.sid)
+        }
+    }, [data]);
 
     const transfer = async () => {
         onTransferOpen();
     };
 
+    const handleBurn = async () => {
+        console.log("burn started")
+        try {
+            const kk = await axios.post("/api/sid/find", { sid: data.sid });
+            const address = window.ethereum.selectedAddress;
+            const tokenID = await kk.data[0].tokenID;
+            await contract.methods
+                .burn(tokenID)
+                .send({ from: address, gas: "3000000" });
+            toast({
+                title: "NFT burned successfully",
+                status: "success",
+                isClosable: true,
+            });
+        }
+        catch (err) {
+            console.log(err)
+            toast({
+                title: "Burn Failed",
+                status: "error",
+                isClosable: true,
+            });
+        }
+    }
     const handleTranfer = async () => {
         try {
             const kk = await axios.post("/api/sid/find", { sid: data.sid });
@@ -91,6 +126,7 @@ export default function NFTcard({ prop }) {
     };
 
     const checkValidity = async (sid) => {
+        console.log("this started")
         const vali = await contract.methods.checkValidity(sid).call();
         setValid(vali);
     };
@@ -174,6 +210,14 @@ export default function NFTcard({ prop }) {
             });
     };
 
+    const getEndDate = async (sid) => {
+
+        const lastDate = await contract.methods.getExpiryDate(sid).call()
+        console.log(lastDate)
+        var dt = await new Date(lastDate * 1000)
+        setEnddate(dt.toLocaleDateString())
+    }
+
     const extend = async (sid) => {
         const address = window.ethereum.selectedAddress;
         const superCoinUsed = document.getElementById("supercoinID").value;
@@ -212,11 +256,11 @@ export default function NFTcard({ prop }) {
         onOpen: onHistoryOpen,
         onClose: onHistoryClose,
     } = useDisclosure();
-    const {
-        isOpen: isClaimOpen,
-        onOpen: onClaimOpen,
-        onClose: onClaimClose,
-    } = useDisclosure();
+    // const {
+    //     isOpen: isClaimOpen,
+    //     onOpen: onClaimOpen,
+    //     onClose: onClaimClose,
+    // } = useDisclosure();
     const {
         isOpen: isMakeClaimOpen,
         onOpen: onMakeClaimOpen,
@@ -232,7 +276,7 @@ export default function NFTcard({ prop }) {
         <Center py={6} >
             <Stack
                 borderWidth="1px"
-                borderRadius="lg"
+                borderRadius={'3%'}
                 minW={"fit-content"}
                 minH={"fit-content"}
                 w={{ sm: "100%", md: "550px", lg: "600px" }}
@@ -252,8 +296,22 @@ export default function NFTcard({ prop }) {
                     justifyContent="center"
                     alignItems="center"
                     p={1}
+                    position='relative'
                 >
-                    <Heading fontSize={"4xl"} fontFamily={"body"}>
+                    <HStack position={'absolute'} right='10px' top='-5px'>
+                        <Button onClick={() => {
+                            onHistoryOpen();
+                            getPurchasingHistory(data.sid);
+                            getClaimHistory(data.sid);
+                        }}>
+                            <RepeatClockIcon color={'cyan.300'} />
+                        </Button>
+                        <Button onClick={handleBurn}>
+                            <DeleteIcon color={'red'} />
+                        </Button>
+                    </HStack>
+
+                    <Heading pt={'40px'} fontSize={"3xl"} fontFamily={"body"}>
                         {data && data.name}
                     </Heading>
                     <Link
@@ -263,7 +321,7 @@ export default function NFTcard({ prop }) {
                         mb={4}
                         href={data && data.pageURL}
                     >
-                        {data && data.pageURL}
+                        Product Url
                     </Link>
                     <Text
                         textAlign={"center"}
@@ -281,29 +339,35 @@ export default function NFTcard({ prop }) {
                     >
                         SID- {data && data.sid}
                     </Badge>
-                    <Badge
+                    <VStack
                         px={1}
-                        py={1}
                         bg={useColorModeValue("gray.50", "gray.800")}
                         fontWeight={"600"}
                         fontSize={"lg"}
                         width={"fit-content"}
+                        height={'200px'}
                         alignItems={"center"}
+                        justifyContent={"center"}
                     >
-                        Warranty{" "}
+                        <Text as='u'>
+                            Warranty Status{" "}
+                        </Text>
+                        <Text>
+                            End Date - {enddate}
+                        </Text>
                         {isValid ? (
-                            <Text color={"green.300"} ml={5}>
-                                valid
+                            <Text color={"green.300"} >
+                                VALID
                             </Text>
                         ) : (
-                            <Text ml={3} color={"red"}>
-                                Invalid
+                            <Text  color={"red"}>
+                                INVALID
                             </Text>
                         )}
-                    </Badge>
+                    </VStack>
 
                     <Stack>
-                        <Wrap spacing={4}>
+                        {/* <Wrap spacing={4}>
                             <WrapItem>
                                 <Button
                                     colorScheme="teal"
@@ -328,62 +392,15 @@ export default function NFTcard({ prop }) {
                                     Claims History
                                 </Button>
                             </WrapItem>
-                        </Wrap>
+                        </Wrap> */}
                     </Stack>
-
-                    <Stack>
-                        <Wrap spacing={2}>
-                            <WrapItem>
-                                <Button
-                                    colorScheme="teal"
-                                    size="sm"
-                                    onClick={() => {
-                                        if (isValid == false) {
-                                            toast({
-                                                title: "Warranty is invalid cannot claim",
-                                                status: "error",
-                                                isClosable: true,
-                                            });
-                                        }
-                                        else{
-                                            onMakeClaimOpen();
-                                        }
-                                    }}
-                                >
-                                    Claim Warranty
-                                </Button>
-                            </WrapItem>
-                            <WrapItem>
-                                <Button
-                                    colorScheme="teal"
-                                    size="sm"
-                                    onClick={() => {
-                                        onUpgradeOpen();
-                                    }}
-                                >
-                                    Upgrade Warranty
-                                </Button>
-                            </WrapItem>
-                        </Wrap>
-                    </Stack>
-                    <Stack
-                        width={"100%"}
-                        mt={"2rem"}
-                        direction={"row"}
-                        padding={2}
-                        justifyContent={"space-between"}
-                        alignItems={"center"}
-                    >
+                    <Stack width={'80%'} rounded={'full'}>
                         <Button
+                            leftIcon={<ArrowForwardIcon />}
                             onClick={() => {
-                                if (isValid == false) {
-                                    window.alert("Warning warranty is invalid");
-                                }
                                 transfer();
                             }}
-                            flex={1}
-                            fontSize={"sm"}
-                            rounded={"full"}
+                            size={'lg'}
                             bg={"blue.400"}
                             color={"white"}
                             boxShadow={
@@ -399,6 +416,47 @@ export default function NFTcard({ prop }) {
                             Transfer
                         </Button>
                     </Stack>
+
+
+                    <Stack width={'80%'} rounded={'full'}>
+                        <Button
+                            leftIcon={<BiWrench />}
+                            colorScheme="teal"
+                            size="lg"
+                            onClick={() => {
+                                if (isValid == false) {
+                                    toast({
+                                        title: "Warranty is invalid cannot claim",
+                                        status: "error",
+                                        isClosable: true,
+                                    });
+                                }
+                                else {
+                                    onMakeClaimOpen();
+                                }
+                            }}
+                        >
+                            Claim Warranty
+                        </Button>
+                    </Stack>
+                    <Stack>
+                        <Link
+
+                            colorScheme="teal"
+                            size="sm"
+                            onClick={() => {
+                                onUpgradeOpen();
+                            }}
+                        >
+                            <Text as='u'>
+                                or Upgrade
+
+                            </Text>
+                        </Link>
+                    </Stack>
+
+
+
                     <Modal isOpen={isTransferOpen} onClose={onTransferClose}>
                         <ModalOverlay />
                         <ModalContent>
@@ -423,32 +481,76 @@ export default function NFTcard({ prop }) {
                     <Modal isOpen={isHistoryOpen} onClose={onHistoryClose} size={"full"}>
                         <ModalOverlay />
                         <ModalContent>
-                            <ModalHeader fontSize={"3xl"}>Owner History</ModalHeader>
+                            <ModalHeader fontSize={"3xl"}>History</ModalHeader>
                             <Divider orientation='horizontal' />
                             <ModalCloseButton />
                             <ModalBody>
-                                <TableContainer>
-                                    <Table variant="simple">
-                                        <TableCaption>Owner Histroy</TableCaption>
-                                        <Thead>
-                                            <Tr>
-                                                <Th>Owner</Th>
-                                                <Th>Purchase Date</Th>
-                                            </Tr>
-                                        </Thead>
-                                        <Tbody>
-                                            {purchaseD &&
-                                                purchaseD.map((item) => {
-                                                    return (
-                                                        <Tr key={item.ownerAddress}>
-                                                            <Td>{item.ownerAddress}</Td>
-                                                            <Td>{item.dateOfPurchase}</Td>
+                                <Tabs isManual size={'lg'}>
+                                    <TabList>
+                                        <Tab>Owner History</Tab>
+                                        <Tab>Claim History </Tab>
+                                    </TabList>
+                                    <TabPanels>
+                                        <TabPanel>
+                                            <TableContainer>
+                                                <Table variant="simple">
+                                                    <TableCaption>Owner Histroy</TableCaption>
+                                                    <Thead>
+                                                        <Tr>
+                                                            <Th>Owner</Th>
+                                                            <Th>Purchase Date</Th>
                                                         </Tr>
-                                                    );
-                                                })}
-                                        </Tbody>
-                                    </Table>
-                                </TableContainer>
+                                                    </Thead>
+                                                    <Tbody>
+                                                        {purchaseD &&
+                                                            purchaseD.map((item) => {
+                                                                return (
+                                                                    <Tr key={item.ownerAddress}>
+                                                                        <Td>{item.ownerAddress}</Td>
+                                                                        <Td>{item.dateOfPurchase}</Td>
+                                                                    </Tr>
+                                                                );
+                                                            })}
+                                                    </Tbody>
+                                                </Table>
+                                            </TableContainer>
+                                        </TabPanel>
+                                        <TabPanel>
+                                            <TableContainer>
+                                                <Table variant="simple">
+                                                    <TableCaption>Claim Histroy</TableCaption>
+
+                                                    <Thead>
+                                                        <Tr>
+                                                            <Th>Complaint</Th>
+                                                            <Th>Date of closing</Th>
+                                                            <Th>Date of opening</Th>
+                                                            <Th>Redressal</Th>
+                                                            <Th>Claim Status</Th>
+                                                        </Tr>
+                                                    </Thead>
+                                                    <Tbody>
+                                                        {claims &&
+                                                            claims.map((item) => {
+                                                                return (
+                                                                    <Tr>
+                                                                        <Td>{item.complaint}</Td>
+                                                                        <Td>{item.dateOfTicketClosing}</Td>
+                                                                        <Td>{item.dateOfTicketOpening}</Td>
+                                                                        <Td>{item.redressal}</Td>
+                                                                        <Td>
+                                                                            {item.warrantyStatus == 1 ? "Closed" : "Open"}
+                                                                        </Td>
+                                                                    </Tr>
+                                                                );
+                                                            })}
+                                                    </Tbody>
+                                                </Table>
+                                            </TableContainer>
+                                        </TabPanel>
+                                    </TabPanels>
+                                </Tabs>
+
                             </ModalBody>
                             <ModalFooter>
                                 <Button colorScheme="blue" mr={3} onClick={onHistoryClose}>
@@ -457,17 +559,17 @@ export default function NFTcard({ prop }) {
                             </ModalFooter>
                         </ModalContent>
                     </Modal>
-                    <Modal isOpen={isClaimOpen} onClose={onClaimClose} size="full">
+                    {/* <Modal isOpen={isClaimOpen} onClose={onClaimClose} size="full">
                         <ModalOverlay />
                         <ModalContent>
                             <ModalHeader fontSize={"3xl"}>Claims History</ModalHeader>
                             <Divider orientation='horizontal' />
                             <ModalCloseButton />
-                            <ModalBody>     
+                            <ModalBody>
                                 <TableContainer>
                                     <Table variant="simple">
                                         <TableCaption>Claim Histroy</TableCaption>
-                                        
+
                                         <Thead>
                                             <Tr>
                                                 <Th>Complaint</Th>
@@ -502,7 +604,7 @@ export default function NFTcard({ prop }) {
                                 </Button>
                             </ModalFooter>
                         </ModalContent>
-                    </Modal>
+                    </Modal> */}
                     <Modal isOpen={isMakeClaimOpen} onClose={onMakeClaimClose}>
                         <ModalOverlay />
                         <ModalContent>
@@ -536,7 +638,7 @@ export default function NFTcard({ prop }) {
                     <Modal isOpen={isUpgradeOpen} onClose={onUpgradeClose}>
                         <ModalOverlay />
                         <ModalContent>
-                            <ModalHeader fontSize={"3xl"}>Upgrade warramty</ModalHeader>
+                            <ModalHeader fontSize={"3xl"}>Upgrade warranty</ModalHeader>
                             <ModalCloseButton />
                             <ModalBody>
                                 <FormControl id="supercoinID">

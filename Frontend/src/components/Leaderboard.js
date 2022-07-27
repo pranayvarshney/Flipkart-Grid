@@ -98,11 +98,11 @@ const Leaderboard = () => {
 				py={10}>
 				<PriceWrapper>
 					<Box py={4} px={5}>
-						<Text fontWeight="500" fontSize="4xl">
+						
 
 							<Lottie animationData={secondAnimation} loop={false} style={style} />
 
-						</Text>
+						
 						<HStack justifyContent="center">
 							<List spacing={3} textAlign="center" px={12}>
 								<ListItem>Address</ListItem>

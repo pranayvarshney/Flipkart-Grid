@@ -30,13 +30,14 @@ const Web3 = require('web3');
 
 function LottieWrapper() {
   const style = {
+    color: 'white',
     height: 400,
     opacity: 0.8,
   };
   return (
-    <Stack spacing={10}>
+    <Stack spacing={2}>
       <Lottie animationData={emptyBox} loop={true} style={style} />;
-      <Text fontSize={'3xl'}>Use the Claim NFT to claim your first product warranty</Text>
+      <Text mt={-20} fontSize={'3xl'}>Oops! Looks like you don't have any NFTs yet. Click on the claim button to get started 😄</Text>
     </Stack>
   )
 }
@@ -44,7 +45,7 @@ function LottieWrapper() {
 function Home() {
 
   const toast = useToast()
- 
+
   const [tsid, settsid] = useState()
   const [nfts, Setnfts] = useState()
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -102,7 +103,8 @@ function Home() {
     var uri = []
     try {
       const kkk = await window.ethereum.request({ method: 'eth_accounts' });
-      if(kkk){
+      console.log(kkk)
+      if (kkk) {
         const myitems = await contract.methods.showMyItems(kkk[0]).call()
         if (myitems) {
           for (var i = 0; i < myitems.length; i++) {
@@ -112,7 +114,7 @@ function Home() {
           Setnfts(uri)
         }
       }
-      
+
     }
     catch (err) {
       console.log(err)
@@ -129,14 +131,14 @@ function Home() {
       <Navbar />
       <Stack minH={'100vh'} height={'fit-content'} bg={"gray.800"} backgroundColor={'#36096d'} background={"linear-gradient(315deg, #9921E8 0%, #5F72BE 74%)"} p={50}>
         <Center>
-          <Stack flexDirection={'row'} justifyContent={'center'}  alignItems={'baseline'} flexWrap={'wrap'} width={'100%'} rowGap={8} columnGap={24} >
-              {nfts && nfts.length > 1 ? <ParentComp uri={nfts} /> : <LottieWrapper/> }
+          <Stack flexDirection={'row'} justifyContent={'center'} alignItems={'baseline'} flexWrap={'wrap'} width={'100%'} rowGap={8} columnGap={24} >
+            {nfts && nfts.length > 0 ? <ParentComp uri={nfts} /> : <LottieWrapper />}
+            {/* <LottieWrapper/> */}
           </Stack>
         </Center>
       </Stack>
 
       <Button
-        zIndex={10000}
         onClick={onOpen}
         position={'fixed'}
         top={'85vh'}

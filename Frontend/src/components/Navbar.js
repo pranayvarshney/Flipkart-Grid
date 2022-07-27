@@ -57,7 +57,7 @@ export default function Navbar() {
     return (
         <>
             <Box bg={'gray.800'} px={4} >
-                <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
+                <Flex h={'80px'} alignItems={'center'} justifyContent={'space-between'}>
                     <Heading
                         lineHeight={1.5}
                         width={'fit-content'}
