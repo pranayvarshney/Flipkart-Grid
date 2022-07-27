@@ -1,10 +1,11 @@
 const express = require('express')
 const app = express();
+const path = require('path')
 const mongoose = require('mongoose')
 const SidSchema = require('./SidModel')
 const prodNameToHash = require('./ProductModel')
 const userAddress = require('./UserAddressModel')
-mongoose.connect('mongodb://localhost/gridDB')
+mongoose.connect('mongodb+srv://node-shop:node-shop@node-rest-shop.sttq1.mongodb.net/Flipkart-grid?retryWrites=true&w=majority')
 const db = mongoose.connection
 
 db.on('connected',()=>{
@@ -19,7 +20,7 @@ app.use(express.json())
 
 
 
-app.get('/', (req, res) => {
+app.get('/api', (req, res) => {
     res.status(200).send('<h1>hello</h1>')
 })
 
@@ -31,9 +32,17 @@ app.post('/api/sid/find',(req,res)=>{
     }).catch(err=>console.log(err))
 })
 
+app.get('/api/addr/find', (req, res) => {
+    userAddress.find({}).then(item => {
+        res.send(item)
+    }).catch(err => console.log(err))
+})
+
 app.post('/api/sid',(req,res)=>{
     const sid = req.body.sid
     const hash = req.body.hash
+    const phoneNumber = req.body.phoneNumber
+    TestMessage(phoneNumber,sid)
     const newProduct = SidSchema({sid:sid,hash:hash})
     newProduct.save().then(prod=>{
        res.send(prod)
@@ -73,15 +82,31 @@ app.post("/api/prodName",(req,res)=>{
     }).catch(err => console.log(err))
 })
 
-function TestMessage() {
+
+app.use(express.static(path.join(__dirname,"./Frontend/build")))
+app.get("*",function(_,res){
+    res.sendFile(
+        path.join(__dirname,"./Frontend/build/index.html"),
+        function(err){
+            if(err){
+                res.status(500).send(err)
+            }
+        }
+    )
+})
+
+
+
+
+function TestMessage(phoneNumber,serialID) {
 
     var sid = "ACa7d20bab7636a34da3df459c68ef8cb8"
     var auth_token = "4a35bd8742a465b3274f79d779fd7f17"
     var twilio = require("twilio")(sid, auth_token);
     twilio.messages.create({
-        body: "hello this is a test message",
+        body: `Thank you for your purchase. Register your nft on websit : . Use SID = ${serialID}`,
         from: "+12077427225",
-        to: "+91 96674 98580"
+        to: `+91 ${phoneNumber}`
     }).then(messages => {
         console.log("message has been sent")
         console.log(messages)
@@ -94,7 +119,7 @@ function TestMessage() {
 // app.use(express.static('public'))
 
 
-const port = 5000 || process.env.port
+const port =  process.env.port || 5000
 app.listen(port, () => {
     console.log(`started at ${port}`)
 })

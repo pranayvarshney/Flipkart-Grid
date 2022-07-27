@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { AddIcon } from '@chakra-ui/icons'
 import {
-  Button, Stack, Heading, Modal,
+  Button, Stack, Modal,
   ModalOverlay,
   ModalContent,
   ModalHeader,
+  Text,
+  Center,
   FormControl,
   FormLabel,
   Input,
@@ -15,59 +17,79 @@ import {
   useToast,
 } from '@chakra-ui/react'
 import abi from './abi.json'
+import Lottie from 'lottie-react'
+import emptyBox from '../empty.json'
 import axios from 'axios'
 import ParentComp from './ParentComp';
 import Navbar from './Navbar'
+import NFTcardtest from './NFTcardtest'
 const Web3 = require('web3');
+
+
+
+
+function LottieWrapper() {
+  const style = {
+    height: 400,
+    opacity: 0.8,
+  };
+  return (
+    <Stack spacing={10}>
+      <Lottie animationData={emptyBox} loop={true} style={style} />;
+      <Text fontSize={'3xl'}>Use the Claim NFT to claim your first product warranty</Text>
+    </Stack>
+  )
+}
+
 function Home() {
 
   const toast = useToast()
   const uri = []
-  const [tsid,settsid]=useState()
-  const [nfts,Setnfts] = useState()
+  const [tsid, settsid] = useState()
+  const [nfts, Setnfts] = useState()
   const { isOpen, onOpen, onClose } = useDisclosure()
   const address = (window.ethereum.selectedAddress);
   const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
-  const contactAddress = process.env.REACT_APP_CONTRACT_ADDRESS;  
+  const contactAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
   const contract = new web3.eth.Contract(abi, contactAddress)
   var flag = 1;
 
-  const mint = async() => {
+  const mint = async () => {
     const sid = (document.getElementById('claimSID')).value
     settsid(sid)
-    const data =  await axios.post('/api/sid/find', { sid:sid})
+    const data = await axios.post('/api/sid/find', { sid: sid })
     const hash = (data.data[0].hash);
     const k = await fetch(`https://ipfs.infura.io/ipfs/${hash}`)
     const uri = await k.json()
-    const validity =(await uri.validity)
+    const validity = (await uri.validity)
     const purchaseDate = await uri.purchaseDate
-    if(purchaseDate){
+    if (purchaseDate) {
       contract.methods.safeMint(address, hash, sid, validity, purchaseDate)
         .send({ from: address, gas: "3000000" })
-        .then((item) => {   
-           console.log(item);
+        .then((item) => {
+          console.log(item);
           toast({
             title: "NFT minted successfully",
             status: 'success',
             isClosable: true,
-          })                 
-         }).catch(err=>{
+          })
+        }).catch(err => {
           console.log(err);
-           toast({
-             title: "Failure in Minting NFT",
-             status: 'error',
-             isClosable: true,
-           })
-         })
+          toast({
+            title: "Failure in Minting NFT",
+            status: 'error',
+            isClosable: true,
+          })
+        })
     }
     // 
   }
-  
- contract.events.NotifyMint(async(err,res)=>{
-   
-   var tokenid = (res.returnValues)[1]
-   await axios.put('/api/saveID', { sid: tsid, tokenID: tokenid })
-   generate();
+
+  contract.events.NotifyMint(async (err, res) => {
+
+    var tokenid = (res.returnValues)[1]
+    await axios.put('/api/saveID', { sid: tsid, tokenID: tokenid })
+    generate();
   }
   )
   contract.events.Transfer(async (err, res) => {
@@ -78,7 +100,7 @@ function Home() {
 
   const generate = async () => {
     const kkk = (window.ethereum.selectedAddress);
-    try{
+    try {
       const myitems = await contract.methods.showMyItems(kkk).call()
       if (myitems) {
         for (var i = 0; i < myitems.length; i++) {
@@ -88,26 +110,26 @@ function Home() {
         Setnfts(uri)
       }
     }
-    catch(err){
+    catch (err) {
       console.log(err)
     }
-    
+
   }
   useEffect(() => {
-   
+
     generate()
   }, []);
 
   return (
     <>
-      <Navbar   />
-      <Stack spacing={4}>
-        
-        <Stack flexDirection={'row'} justifyContent={'center'} alignItems={'center'} flexWrap={'wrap'} width={'100%'} rowGap={8} columnGap={24} >
-         
-         <ParentComp uri={nfts} />
-          
-        </Stack>
+      <Navbar />
+      <Stack minH={'100vh'} height={'fit-content'} backgroundColor={'#36096d'} background={"linear-gradient(315deg, #9921E8 0%, #5F72BE 74%)"} p={50}>
+        <Center>
+          <Stack flexDirection={'row'} justifyContent={'center'} alignItems={'baseline'} flexWrap={'wrap'} width={'100%'} rowGap={8} columnGap={24} >
+            {nfts && nfts.length > 1 ? <ParentComp uri={nfts} /> : <LottieWrapper/> }
+          {/* <NFTcardtest/> */}
+          </Stack>
+        </Center>
       </Stack>
 
       <Button

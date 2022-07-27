@@ -5,6 +5,7 @@ import {
     Thead,
     Table,
     Th,
+    Divider,
     Tbody,
     Td,
     TableCaption,
@@ -228,7 +229,7 @@ export default function NFTcard({ prop }) {
     } = useDisclosure();
 
     return (
-        <Center py={6}>
+        <Center py={6} >
             <Stack
                 borderWidth="1px"
                 borderRadius="lg"
@@ -423,6 +424,7 @@ export default function NFTcard({ prop }) {
                         <ModalOverlay />
                         <ModalContent>
                             <ModalHeader fontSize={"3xl"}>Owner History</ModalHeader>
+                            <Divider orientation='horizontal' />
                             <ModalCloseButton />
                             <ModalBody>
                                 <TableContainer>
@@ -459,11 +461,13 @@ export default function NFTcard({ prop }) {
                         <ModalOverlay />
                         <ModalContent>
                             <ModalHeader fontSize={"3xl"}>Claims History</ModalHeader>
+                            <Divider orientation='horizontal' />
                             <ModalCloseButton />
-                            <ModalBody>
+                            <ModalBody>     
                                 <TableContainer>
                                     <Table variant="simple">
                                         <TableCaption>Claim Histroy</TableCaption>
+                                        
                                         <Thead>
                                             <Tr>
                                                 <Th>Complaint</Th>

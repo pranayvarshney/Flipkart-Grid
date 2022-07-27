@@ -25,9 +25,7 @@ export default function Landing() {
         pass = pass.value;
         console.log(email);
         console.log(pass);
-
         history("/create");
-
     }
     return (
         <Box position={'relative'} overflow={'hidden'}>
@@ -73,7 +71,7 @@ export default function Landing() {
                             </Text>
                         </Heading>
                         <Text color={'gray.500'} fontSize={{ base: 'sm', sm: 'md' }}>
-                            Contact NFTwarranties team if you don't have a login username and password
+                            Contact NFTwarranties team if you don't have a login credentials
                         </Text>
                     </Stack>
 

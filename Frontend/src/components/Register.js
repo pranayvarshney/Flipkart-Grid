@@ -58,7 +58,8 @@ function Register() {
  useEffect(()=>{
     const savetoDB = async()=>{
         try {
-            await axios.post('/api/sid', { sid: sid, hash: ipfsHash })
+            const phoneNumber = (document.getElementById('pno')).value
+            await axios.post('/api/sid', { sid: sid, hash: ipfsHash, phoneNumber:phoneNumber })
         }
         catch { console.log("err") }
     }

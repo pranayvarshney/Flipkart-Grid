@@ -15,8 +15,11 @@ import abi from './abi.json'
 const Web3 = require('web3');
 const NavLink = ({children}) => (
     <Link
-        fontSize={'3xl'}
-        px={2}
+        mr={10}
+        border={'solid'}
+        borderColor={'blue.300'}
+        fontSize={'2xl'}
+        px={4}
         py={1}
         rounded={'md'}
         _hover={{
@@ -53,7 +56,7 @@ export default function Navbar() {
 
     return (
         <>
-            <Box bg={useColorModeValue('gray.100', 'gray.900')} px={4} >
+            <Box bg={'gray.800'} px={4} >
                 <Flex h={16} alignItems={'center'} justifyContent={'space-between'}>
                     <Heading
                         lineHeight={1.5}
@@ -69,7 +72,7 @@ export default function Navbar() {
                     <Flex alignItems={'center'}>
                         <Stack direction={'row'}  alignItems={'center'}>
                             <NavLink key={'leaderboard'}>Leaderboard</NavLink>
-                            <Text  pl={20} fontSize={'2xl'}>{superCoins}</Text>
+                            <Text ml={5} minWidth={'fit-content'} w={'fit-content'} fontSize={'2xl'}>{superCoins}</Text>
                             <Lottie animationData={coinAnimation} loop={true} style={style}/>;
                             
                         </Stack>
