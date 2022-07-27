@@ -69,7 +69,9 @@ const Leaderboard =() => {
 		}
 		
 	}
-	fetch()
+	useEffect(() => {
+		fetch()
+	}, []);
 	return (
 		<Box py={4}>
 			<VStack spacing={1.5} textAlign="center">
