@@ -59,5 +59,5 @@
     "stream-http": "^3.2.0",
     "url": "^0.11.0"
   },
-  "proxy": "http://localhost:5000/"
+  "proxy": "https://grid-nft.herokuapp.com/"
 }
