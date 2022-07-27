@@ -66,7 +66,7 @@ app.post('/api/saveAddr',async(req,res)=>{
     const addres= req.body.address;
     const coin= req.body.coins;
     var check = null;
-    check = await  userAddress.exists({address:addres})
+    check = await userAddress.exists({address:addres})
     if(check==null){
         const newAddr = userAddress({ address: addres})
         newAddr.save().then(prod => {

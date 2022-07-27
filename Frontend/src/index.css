@@ -14,11 +14,7 @@ code {
 
 .card{
     z-index: index 999;;
-    background: rgba(231, 231, 231, 0.348);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-    backdrop-filter: blur(11px);
-    -webkit-backdrop-filter: blur(11px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
+   
 }
 .vertical{
   writing-mode: vertical-rl;

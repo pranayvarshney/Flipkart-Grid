@@ -1,8 +1,13 @@
-import { Heading, Stack, Input, FormControl, FormLabel, Button, useToast } from '@chakra-ui/react'
+import { Heading, Stack, Input, FormControl, FormLabel, Button, useToast, HStack } from '@chakra-ui/react'
 import React from 'react'
+import ticketAnimation from './ticket.json'
+import Lottie from 'lottie-react'
 import abi from './abi.json'
 const Web3 = require('web3');
 function Ticket() {
+    const style ={
+        height : '400px'
+    }
     const address = (window.ethereum.selectedAddress);
     const web3 = new Web3(Web3.givenProvider || "ws://localhost:8545");
     const contactAddress = process.env.REACT_APP_CONTRACT_ADDRESS;
@@ -33,6 +38,7 @@ function Ticket() {
 
 
     return (
+        <HStack spacing={100} justifyContent={'center'} alignItems={'center'}>
         <Stack spacing={5}
             w={'full'}
             maxW={'md'}
@@ -56,6 +62,8 @@ function Ticket() {
             </Stack>
 
         </Stack>
+            <Lottie animationData={ticketAnimation} loop={true} style={style} />
+        </HStack>
     )
 }
 

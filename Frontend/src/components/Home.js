@@ -44,7 +44,7 @@ function LottieWrapper() {
 function Home() {
 
   const toast = useToast()
-  const uri = []
+ 
   const [tsid, settsid] = useState()
   const [nfts, Setnfts] = useState()
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -99,6 +99,7 @@ function Home() {
 
 
   const generate = async () => {
+    var uri = []
     try {
       const kkk = await window.ethereum.request({ method: 'eth_accounts' });
       if(kkk){
@@ -126,16 +127,16 @@ function Home() {
   return (
     <>
       <Navbar />
-      <Stack minH={'100vh'} height={'fit-content'} backgroundColor={'#36096d'} background={"linear-gradient(315deg, #9921E8 0%, #5F72BE 74%)"} p={50}>
+      <Stack minH={'100vh'} height={'fit-content'} bg={"gray.800"} backgroundColor={'#36096d'} background={"linear-gradient(315deg, #9921E8 0%, #5F72BE 74%)"} p={50}>
         <Center>
-          <Stack flexDirection={'row'} justifyContent={'center'} alignItems={'baseline'} flexWrap={'wrap'} width={'100%'} rowGap={8} columnGap={24} >
-            {nfts && nfts.length > 1 ? <ParentComp uri={nfts} /> : <LottieWrapper/> }
-          {/* <NFTcardtest/> */}
+          <Stack flexDirection={'row'} justifyContent={'center'}  alignItems={'baseline'} flexWrap={'wrap'} width={'100%'} rowGap={8} columnGap={24} >
+              {nfts && nfts.length > 1 ? <ParentComp uri={nfts} /> : <LottieWrapper/> }
           </Stack>
         </Center>
       </Stack>
 
       <Button
+        zIndex={10000}
         onClick={onOpen}
         position={'fixed'}
         top={'85vh'}
