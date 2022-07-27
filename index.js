@@ -87,21 +87,6 @@ app.post("/api/prodName",(req,res)=>{
 })
 
 
-app.use(express.static(path.join(__dirname,"./Frontend/build")))
-app.get("*",function(_,res){
-    res.sendFile(
-        path.join(__dirname,"./Frontend/build/index.html"),
-        function(err){
-            if(err){
-                res.status(500).send(err)
-            }
-        }
-    )
-})
-
-
-
-
 function TestMessage(phoneNumber,serialID) {
 
     var sid = "ACa7d20bab7636a34da3df459c68ef8cb8"
