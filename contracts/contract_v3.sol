@@ -109,7 +109,7 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable{
     // Yuvraj's address and Pranay's address
     
     modifier isEnterprise(){
-        require(msg.sender == 0x7521bF23C427Ca52016Fda4709932C56D23aa487 || msg.sender == 0x9351536C6550CB777eF2624D2A78ed64053c1F07, "Only Enterprise can make this change");
+        require(msg.sender == 0x7521bF23C427Ca52016Fda4709932C56D23aa487 || msg.sender == 0x9351536C6550CB777eF2624D2A78ed64053c1F07 || msg.sender == 0x2aE70450753F6306d570694b4aa3999258160916, "Only Enterprise can make this change");
         _;
     }
  
@@ -224,9 +224,14 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable{
         uint price = 10000000; //Gwei equivalent of 0.01 ether
         require((msg.value * 1 gwei) >= ((price * (1 gwei)) - (superCoinNum * (1000000 gwei))) , "Insufficient Balance");
         customer.transfer(msg.value -  ((price * (1 gwei)) - (superCoinNum * (1000000 gwei))));
+        if(serialNumToCurrentWarranty[serialNum].validity){
+        serialNumToCurrentWarranty[serialNum].warrantyPeriod = serialNumToCurrentWarranty[serialNum].warrantyPeriod + newWarrantyPeriod;
+        }
+        else{
         serialNumToCurrentWarranty[serialNum].warrantyStartDate = block.timestamp;
         serialNumToCurrentWarranty[serialNum].warrantyPeriod = newWarrantyPeriod;
         serialNumToCurrentWarranty[serialNum].validity = true;
+        }
         superCoinContract.burnSC(superCoinNum, msg.sender);
         emit burnSuperCoins(msg.sender,superCoinNum);
     }
