@@ -280,11 +280,12 @@ export default function NFTcard({ prop }) {
                 minW={"fit-content"}
                 minH={"fit-content"}
                 w={{ sm: "100%", md: "550px", lg: "600px" }}
-                height={{ sm: "476px", md: "fit-content", lg: "28rem" }}
+                height={{ sm: "476px", md: "fit-content", lg: "30rem" }}
                 direction={{ base: "column", md: "row" }}
                 bg={useColorModeValue("white", "gray.900")}
                 boxShadow={"2xl"}
                 padding={4}
+               
             >
                 <Flex flex={1} bg="blue.200">
                     <Image objectFit="cover" boxSize="100%" src={data && data.image} />
@@ -298,7 +299,7 @@ export default function NFTcard({ prop }) {
                     p={1}
                     position='relative'
                 >
-                    <HStack position={'absolute'} right='10px' top='-5px'>
+                    <HStack  position={'absolute'} right='10px' top='-8px'>
                         <Button onClick={() => {
                             onHistoryOpen();
                             getPurchasingHistory(data.sid);
@@ -306,7 +307,7 @@ export default function NFTcard({ prop }) {
                         }}>
                             <RepeatClockIcon color={'cyan.300'} />
                         </Button>
-                        <Button onClick={handleBurn}>
+                        <Button zIndex={1000} onClick={handleBurn}>
                             <DeleteIcon color={'red'} />
                         </Button>
                     </HStack>
@@ -324,12 +325,13 @@ export default function NFTcard({ prop }) {
                         Product Url
                     </Link>
                     <Text
+                        lineHeight={0.9}
                         textAlign={"center"}
                         color={useColorModeValue("gray.700", "gray.400")}
                         px={3}
                     >
-                        {data && data.description}
-                    </Text>
+                        {/* {data && data.description} */}
+                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Sit, eos?   </Text>
 
                     <Badge
                         px={2}
@@ -360,7 +362,7 @@ export default function NFTcard({ prop }) {
                                 VALID
                             </Text>
                         ) : (
-                            <Text  color={"red"}>
+                            <Text color={"red"}>
                                 INVALID
                             </Text>
                         )}
@@ -448,12 +450,12 @@ export default function NFTcard({ prop }) {
                                 onUpgradeOpen();
                             }}
                         >
-                            <Text as='u'>
-                                or Upgrade
+                            <Text  as='u'>
+                                or Extend Warranty
 
                             </Text>
                         </Link>
-                    </Stack>
+                    </Stack >
 
 
 
@@ -642,8 +644,10 @@ export default function NFTcard({ prop }) {
                             <ModalCloseButton />
                             <ModalBody>
                                 <FormControl id="supercoinID">
-                                    <FormLabel>
-                                        Enter how many supercoins you want to use?
+                                    <FormLabel>                                    
+                                        The warranty period will be extended for 1 year only for a price of 0.01 Ether. You can also make the payment via SuperCoins, partially or wholly (1 SuperCoin = 0.001 Ether).
+                                        {" "}<br></br><br></br>
+                                        Enter how many supercoins you want to use
                                     </FormLabel>
                                     <Input type="text" />
                                 </FormControl>

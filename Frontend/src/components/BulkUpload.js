@@ -4,6 +4,7 @@ import ipfs from '../ipfs.js'
 import axios from 'axios';
 import csvimage from './carbon.png'
 import { Stack, Text, Select, Input, Button, useToast, HStack, Image } from '@chakra-ui/react';
+import generateHash from 'random-hash';
 function BulkUpload() {
     const toast = useToast()
     const [option, setoption] = useState();
@@ -53,7 +54,8 @@ function BulkUpload() {
                 const nft = await ipfs.add(buf)
                 // console.log(nft.path)
                 try {
-                    await axios.post('/api/sid', { sid: sid, hash: nft.path, phoneNumber: phoneNumber })
+                    const OTP = generateHash({ length: 6 });
+                    await axios.post('/api/sid', { sid: sid, hash: nft.path, phoneNumber: phoneNumber,OTP : OTP})
                 }
                 catch {
                     flag = 0;
