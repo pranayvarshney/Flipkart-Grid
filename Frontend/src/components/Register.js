@@ -2,6 +2,7 @@ import React,{useState,useEffect} from 'react'
 import axios from 'axios'
 import { Heading, HStack, useToast , Stack, VStack, Input, Button, FormLabel, FormControl, useColorModeValue,Checkbox} from '@chakra-ui/react';
 import ipfs from '../ipfs.js'
+import generateHash from 'random-hash';
 function Register() {
     const [productName, setProductName] = useState();
     const [productDesc, setProductDesc] = useState();
@@ -11,7 +12,7 @@ function Register() {
     const [path, setPath] = useState();
     const [ipfsHash, setIpfsHash] = useState();
     const toast = useToast()
-
+   
     const handleSubmit = async() => {
         setProductName((document.getElementById("productName")).value)
         setProductDesc((document.getElementById("productDesc")).value)
@@ -58,8 +59,9 @@ function Register() {
  useEffect(()=>{
     const savetoDB = async()=>{
         try {
+            const OTP = generateHash({ length: 6 });
             const phoneNumber = (document.getElementById('pno')).value
-            await axios.post('/api/sid', { sid: sid, hash: ipfsHash, phoneNumber:phoneNumber })
+            await axios.post('/api/sid', { sid: sid, hash: ipfsHash, phoneNumber:phoneNumber, OTP:OTP })
         }
         catch { console.log("err") }
     }

@@ -6,6 +6,7 @@ import {
     Container,
     Input,
     Button,
+    Image,
     SimpleGrid,
     FormControl,
     FormLabel,
@@ -15,7 +16,7 @@ import {
 } from '@chakra-ui/react';
 
 import { useNavigate } from "react-router-dom";
-
+import logo from './logo.png'
 export default function Landing() {
     let history = useNavigate();
     const handleSubmit = (e) => {
@@ -35,11 +36,12 @@ export default function Landing() {
                 columns={{ base: 1, md: 2 }}
                 spacing={{ base: 10, lg: 32 }}
                 py={{ base: 10, sm: 20, lg: 32 }}>
-                <Stack spacing={{ base: 10, md: 20 }}>
+                <Stack width={'fit-content'} spacing={{ base: 10, md: 10 }} alignItems={'center'}>
                     <Heading
+                        width={'fit-content'}
                         lineHeight={1.1}
-                        fontSize={{ base: '3xl', sm: '4xl', md: '5xl', lg: '7xl' }}>
-                        NFT Warranty {' '}
+                        fontSize={{ base: '3xl', sm: '4xl', md: '5xl', lg: '6xl' }}>
+                        Warranty-onChain {' '}
                         <Text
                             as={'span'}
                             bgGradient="linear(to-r, blue.400,cyan.400)"
@@ -48,6 +50,8 @@ export default function Landing() {
                         </Text>{' '}
                         Login
                     </Heading>
+                    <Image src={logo} height={'250px'} width={'250px'}>
+                    </Image>
                 </Stack>
 
 
@@ -71,7 +75,7 @@ export default function Landing() {
                             </Text>
                         </Heading>
                         <Text color={'gray.500'} fontSize={{ base: 'sm', sm: 'md' }}>
-                            Contact NFTwarranties team if you don't have a login credentials
+                            Contact Warranty-onChain team if you don't have login credentials
                         </Text>
                     </Stack>
 

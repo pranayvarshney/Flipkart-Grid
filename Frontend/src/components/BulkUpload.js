@@ -83,11 +83,12 @@ function BulkUpload() {
                     Choose the product you want to bulk register for
                 </Text>
                 <Select placeholder='Select Product' width={'fit-content'} onChange={optionPicker}>
-                    <option value='QmSH7jkVuP45t2NiX1Wjdd61vdnQTyseLwMS5t9MicHMTL'>Iphone 13</option>
-                    <option value='QmQj2jELwa3w25opygBpkTUzcmh6doqgTJ4qA4U2TW5vDz'>Nike shoes</option>
-                    <option value='QmXNRigf3q2ECs3wZJHriRiZLV1a67yBuSrnz6B7BjrjAb'>S20 Pro</option>
-                    <option value='QmQj2jELwa3w25opygBpkTUzcmh6doqgTJ4qA4U2TW5vDz'>Adidas Shoes</option>
-                    <option value='QmQj2jELwa3w25opygBpkTUzcmh6doqgTJ4qA4U2TW5vDz'>Macbook</option>
+                    <option value='QmRhJ75S4GVChKzCh5vY1vSBX6EGS8jai567hSsz1GoJeH'>Polo Neck T-Shirt</option>
+                    <option value='QmWEhyEj6FPjjVy7kvuaAdBQ97b1w3j4iMg6TbZzVh7SGU'>APPLE iPhone 13 Pro</option>
+                    <option value='QmcbJHtSGbf6BaXjdyY1cBuDobKKHEd2u1rb8jtFs7wEJY'>Skmei Watch</option>
+                    <option value='QmTBp6UZrCSvaWpQ8HDnhAJk6a1mLWxU174BrodH6p3SBW'>Samsung Refrigerator</option>
+                    <option value='QmVsyK2moBBQtWRMwooRypWna8UpDNqY4y4JNMtTkyWNSS'>Long Door Curtain</option>
+                    <option value='QmU7uUD6TijHbrLZzda9koA3mk99p1X55DzJbMgCpA7x9b'>Realme 9 </option>
                 </Select>
                 <Input
                     width={'fit-content'}
@@ -101,10 +102,10 @@ function BulkUpload() {
                     Register
                 </Button>
             </Stack>
-            
-                <Image height={'400px'} src={csvimage}></Image>
-                <Text fontSize={'lg'} position={'absolute'} bottom={'190px'} right={'130px'}>Make sure this exact format is followed</Text>
-           
+
+            <Image height={'400px'} src={csvimage}></Image>
+            <Text fontSize={'lg'} position={'absolute'} bottom={'190px'} right={'130px'}>Make sure this exact format is followed</Text>
+
         </HStack>
     )
 }

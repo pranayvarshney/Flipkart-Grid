@@ -57,33 +57,42 @@ function Home() {
 
   const mint = async () => {
     const sid = (document.getElementById('claimSID')).value
+    const OTP = (document.getElementById('OTP')).value
     settsid(sid)
     const data = await axios.post('/api/sid/find', { sid: sid })
-    const hash = (data.data[0].hash);
-    const k = await fetch(`https://ipfs.infura.io/ipfs/${hash}`)
-    const uri = await k.json()
-    const validity = (await uri.validity)
-    const purchaseDate = await uri.purchaseDate
-    if (purchaseDate) {
-      contract.methods.safeMint(address, hash, sid, validity, purchaseDate)
-        .send({ from: address, gas: "3000000" })
-        .then((item) => {
-          console.log(item);
-          toast({
-            title: "NFT minted successfully",
-            status: 'success',
-            isClosable: true,
+    if(data.data[0].OTP == OTP){
+      const hash = (data.data[0].hash);
+      const k = await fetch(`https://ipfs.infura.io/ipfs/${hash}`)
+      const uri = await k.json()
+      const validity = (await uri.validity)
+      const purchaseDate = await uri.purchaseDate
+      if (purchaseDate) {
+        contract.methods.safeMint(address, hash, sid, validity, purchaseDate)
+          .send({ from: address, gas: "3000000" })
+          .then((item) => {
+            console.log(item);
+            toast({
+              title: "NFT minted successfully",
+              status: 'success',
+              isClosable: true,
+            })
+          }).catch(err => {
+            console.log(err);
+            toast({
+              title: "Failure in Minting NFT",
+              status: 'error',
+              isClosable: true,
+            })
           })
-        }).catch(err => {
-          console.log(err);
-          toast({
-            title: "Failure in Minting NFT",
-            status: 'error',
-            isClosable: true,
-          })
-        })
+      }
     }
-    // 
+    else{
+      toast({
+        title: "You Entered the wrong OTP",
+        status: 'error',
+        isClosable: true,
+      })
+    }
   }
 
   contract.events.NotifyMint(async (err, res) => {
@@ -103,7 +112,6 @@ function Home() {
     var uri = []
     try {
       const kkk = await window.ethereum.request({ method: 'eth_accounts' });
-      console.log(kkk)
       if (kkk) {
         const myitems = await contract.methods.showMyItems(kkk[0]).call()
         if (myitems) {
@@ -159,6 +167,10 @@ function Home() {
           <ModalBody>
             <FormControl id="claimSID">
               <FormLabel>Enter product serial ID</FormLabel>
+              <Input type="text" />
+            </FormControl>
+            <FormControl mt={5} id="OTP">
+              <FormLabel>Enter OTP sent on your registerd mobile number</FormLabel>
               <Input type="text" />
             </FormControl>
           </ModalBody>

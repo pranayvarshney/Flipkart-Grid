@@ -5,11 +5,12 @@ import {
     Text,
     Container,
     Button,
+    Image,
     SimpleGrid,  
     useBreakpointValue,  
     Icon,
 } from '@chakra-ui/react';
-
+import logo from './logo.png'
 import { useNavigate } from "react-router-dom";
 import { useState } from 'react';
 
@@ -39,20 +40,23 @@ export default function ClientLanding() {
                 maxW={'7xl'}
                 columns={{ base: 1, md: 2 }}
                 spacing={{ base: 10, lg: 32 }}
-                py={{ base: 10, sm: 20, lg: 32 }}>
-                <Stack spacing={{ base: 10, md: 20 }}>
+                py={{ base: 10, sm: 20, lg: 28}}>
+                <Stack spacing={{ base: 10, md: 10 }} alignItems={'center'}>
                     <Heading
                         lineHeight={1.1}
-                        fontSize={{ base: '3xl', sm: '4xl', md: '5xl', lg: '7xl' }}>
-                        NFT Warranty {' '}
+                        fontSize={{ base: '3xl', sm: '4xl', md: '5xl', lg: '6xl' }}>
+                        Warranty-onChain {' '}
                         <Text
                             as={'span'}
+                           
                             bgGradient="linear(to-r, blue.400,cyan.400)"
                             bgClip="text">
                             Client
                         </Text>{' '}
                         Login
                     </Heading>
+                    <Image src={logo} height={'250px'} width={'250px'}>
+                    </Image>
                 </Stack>
 
 
@@ -61,7 +65,8 @@ export default function ClientLanding() {
                     rounded={'xl'}
                     p={{ base: 4, sm: 6, md: 8 }}
                     spacing={{ base: 8 }}
-                    maxW={{ lg: 'lg' }}>
+                    widht={'fit-content'}
+                    height={'fit-content'}>
                     <Stack spacing={4}>
                         <Heading
                             color={'gray.800'}
@@ -77,7 +82,7 @@ export default function ClientLanding() {
                             </Text>
                         </Heading>
                         <Text color={'gray.500'} fontSize={{ base: 'sm', sm: 'md' }}>
-                            Contact NFTwarranties team if you don't have a login username and password
+                            Use metamask wallet to connect to the Decentralised world
                         </Text>
                         <Stack spacing={6}>
                             <Button

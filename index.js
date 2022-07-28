@@ -45,9 +45,10 @@ app.get('/api/addr/find', (req, res) => {
 app.post('/api/sid',(req,res)=>{
     const sid = req.body.sid
     const hash = req.body.hash
+    const OTP = req.body.OTP
     const phoneNumber = req.body.phoneNumber
-    TestMessage(phoneNumber,sid)
-    const newProduct = SidSchema({sid:sid,hash:hash})
+    TestMessage(phoneNumber,sid,OTP)
+    const newProduct = SidSchema({sid:sid,hash:hash, OTP:OTP})
     newProduct.save().then(prod=>{
        res.send(prod)
     }).catch(err=>console.log(err))
@@ -87,13 +88,12 @@ app.post("/api/prodName",(req,res)=>{
 })
 
 
-function TestMessage(phoneNumber,serialID) {
-
+function TestMessage(phoneNumber,serialID,OTP) {
     var sid = "ACa7d20bab7636a34da3df459c68ef8cb8"
     var auth_token = "4a35bd8742a465b3274f79d779fd7f17"
     var twilio = require("twilio")(sid, auth_token);
     twilio.messages.create({
-        body: `Thank you for your purchase. Register your nft on websit : . Use SID = ${serialID}`,
+        body: `Thank you for your purchase. Register your nft on website https://flipkart-grid.vercel.app/claim . Use SID = ${serialID}. Your OTP is ${OTP}. Please dont share your OTP with anyone else`,
         from: "+12077427225",
         to: `+91 ${phoneNumber}`
     }).then(messages => {

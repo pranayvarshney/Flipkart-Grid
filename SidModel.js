@@ -10,6 +10,10 @@ const SidSchema = mongoose.Schema({
         type : String,
         required : true,
     },
+    OTP :{
+        type : String ,
+        required : true
+    },
     tokenID :{
         type : Number
     }
