@@ -24,6 +24,10 @@ function BulkUpload() {
             },
         });
     };
+
+  
+
+
     const bulkRegister = async () => {
         if (option == "") {
             window.alert("no option selected")
@@ -36,7 +40,7 @@ function BulkUpload() {
             const validity = await uri.validity
             const pageURL = await uri.pageURL
             const image = (await uri.image)
-            const purchaseDate = Number(new Date())
+            const today = Number(new Date())
             //traverse thru all SID create hashes and store in db
             sidData.map(async (item) => {
                 var sid = (item.SID)
@@ -47,7 +51,7 @@ function BulkUpload() {
                     "sid": sid,
                     "validity": validity,
                     "pageURL": pageURL,
-                    "purchaseDate": purchaseDate,
+                    "purchaseDate": Math.floor(today / 1000),
                     "image": image
                 }
                 var buf = Buffer.from(JSON.stringify(obj));

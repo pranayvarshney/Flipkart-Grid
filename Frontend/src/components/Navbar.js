@@ -41,10 +41,11 @@ export default function Navbar() {
         height: 50,
     };
     const fetchCoins = async()=>{
-        const coins = await contract.methods.balanceOf(address).call()
+        const kkk = await window.ethereum.request({ method: 'eth_accounts' });
+        const coins = await contract.methods.balanceOf(kkk[0]).call()
         setsuperCoins(coins)
         try{
-            await axios.post('/api/saveAddr', { address : address})
+            await axios.post('/api/saveAddr', { address : kkk[0]})
         }
         catch(err){
             console.log(err)

@@ -73,8 +73,9 @@ app.post('/api/saveAddr',async(req,res)=>{
         newAddr.save().then(prod => {
             res.send(prod)
         }).catch(err => console.log(err))
-    }
-  
+    }    
+    res.send("ok")
+    
 }
 )
 

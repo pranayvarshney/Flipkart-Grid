@@ -80,12 +80,12 @@ export default function NFTcard({ prop }) {
     const handleBurn = async () => {
         console.log("burn started")
         try {
+
             const kk = await axios.post("/api/sid/find", { sid: data.sid });
             const address = window.ethereum.selectedAddress;
             const tokenID = await kk.data[0].tokenID;
-            await contract.methods
-                .burn(tokenID)
-                .send({ from: address, gas: "3000000" });
+            console.log(kk)
+            await contract.methods.burn(tokenID).send({ from: address, gas: "3000000" });
             toast({
                 title: "NFT burned successfully",
                 status: "success",
@@ -330,8 +330,8 @@ export default function NFTcard({ prop }) {
                         color={useColorModeValue("gray.700", "gray.400")}
                         px={3}
                     >
-                        {/* {data && data.description} */}
-                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Sit, eos?   </Text>
+                        {data && data.description}
+                        </Text>
 
                     <Badge
                         px={2}

@@ -209,7 +209,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "tokenID",
+        "name": "tokenId",
         "type": "uint256"
       }
     ],
