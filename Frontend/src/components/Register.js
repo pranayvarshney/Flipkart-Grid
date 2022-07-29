@@ -96,7 +96,7 @@ function Register() {
                       <FormLabel>Enter product serial ID</FormLabel>
                       <Input type="text" />
                   </FormControl>
-                  <FormControl id="pno">
+                  <FormControl id="pno" isRequired>
                       <FormLabel>Enter phone number</FormLabel>
                       <Input type="text" />
                   </FormControl>
