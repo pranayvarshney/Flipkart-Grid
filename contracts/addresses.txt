@@ -1,3 +1,3 @@
-Product :0xf8f0A93e4E93C98051F2fcD7130367FE010FC785
-abi : https://p.ip.fi/aOLd
+Product :0x7f40D2d48D163b730af3F4e28971415dF5Ff3871
+abi : https://p.ip.fi/4dEm
 SuperCoin : 0xdd249a223B3745626108321aAC5e1E380EAfD359
