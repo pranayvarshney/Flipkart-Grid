@@ -19,7 +19,7 @@ interface SuperCoinInterface{
     function burnSC(uint numSuperCoins, address customer) external;
 }
  
-contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable{
+contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, ERC721Burnable, Ownable{
     using Counters for Counters.Counter;
  
     Counters.Counter private _tokenIdCounter;
@@ -208,7 +208,7 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable{
     }
  
     // Function to transfer ownership 
-    function transferOwnership(address to, uint tokenId, string memory serialNum, bool isSBT) external isOwner(serialNum){
+    function transferOwnership(address to, uint tokenId, string memory serialNum, bool isSBT) public isOwner(serialNum){
         require(!isSBT, "Your token is a SoulBound token");
         _beforeTokenTransfer(msg.sender, to, tokenId);
         safeTransferFrom(msg.sender, to, tokenId);
@@ -256,12 +256,16 @@ contract Product is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable{
         super._beforeTokenTransfer(from, to, tokenId);
     }
  
-    function burn(uint256 tokenID) external{
-        _beforeTokenTransfer(msg.sender, address(0), tokenID);
-        _burn(tokenID);
-    }
+    // function burnProductNFT(uint256 tokenID, string memory serialNum) external{
+    //     transferOwnership(address(0), tokenID, serialNum, false);
+    // }
+    
     function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
         super._burn(tokenId);
+    }
+    function burn(uint256 tokenId) public override {
+        super.burn(tokenId);
+
     }
     function tokenURI(uint256 tokenId)
         public
